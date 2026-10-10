@@ -1,0 +1,15 @@
+# Local secrets and environment settings
+.env
+.env.*
+!.env.example
+
+# Node.js workspace artifacts
+node_modules/
+dist/
+coverage/
+
+# Local editor and OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
