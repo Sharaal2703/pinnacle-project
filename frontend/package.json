@@ -1,0 +1,11 @@
+{
+  "name": "@pinnacle/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"Frontend build placeholder\""
+  },
+  "dependencies": {
+    "@pinnacle/shared": "*"
+  }
+}

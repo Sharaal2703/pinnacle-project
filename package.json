@@ -1,0 +1,22 @@
+{
+  "name": "pinnacle-project",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=shared",
+    "build:backend": "npm run build --workspace=backend",
+    "build:all": "npm run build:shared && npm run build:backend",
+    "db:generate": "npm run db:generate --workspace=backend",
+    "db:push": "npm run db:push --workspace=backend",
+    "db:migrate": "npm run db:migrate --workspace=backend",
+    "db:seed": "npm run db:seed --workspace=backend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "test:backend": "npm run test --workspace=backend",
+    "openapi:generate": "npm run openapi:generate --workspace=shared"
+  }
+}

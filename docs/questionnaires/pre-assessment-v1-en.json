@@ -1,0 +1,417 @@
+{
+  "questionnaire_id": "mindbridge-pre-v1-en",
+  "language_code": "en",
+  "version": "1.0.0",
+  "grade_min": 6,
+  "grade_max": 8,
+  "review": {
+    "status": "APPROVED",
+    "reviewer_name": "Middle School Curriculum Review Panel",
+    "review_date": "2026-10-10T12:00:00Z",
+    "notes": "Reviewed for age appropriateness, language clarity, and pathway balance across Grades 6-8."
+  },
+  "items": [
+    {
+      "key": "SR_LING",
+      "type": "SELF_REPORT",
+      "prompt": "I enjoy reading stories and expressing my ideas through writing.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "LING",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_LOGI",
+      "type": "SELF_REPORT",
+      "prompt": "I like solving number puzzles and figuring out how things work step-by-step.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "LOGI",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_SPAT",
+      "type": "SELF_REPORT",
+      "prompt": "I understand new concepts easily when I see diagrams, maps, and illustrations.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "SPAT",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_MUSI",
+      "type": "SELF_REPORT",
+      "prompt": "I often remember facts better when they are set to a rhythm, tune, or song.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "MUSI",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_BODY",
+      "type": "SELF_REPORT",
+      "prompt": "I learn best when doing hands-on experiments or building physical models.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "BODY",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_NATU",
+      "type": "SELF_REPORT",
+      "prompt": "I enjoy observing plants, animals, and patterns in the natural environment.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "NATU",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SC_01",
+      "type": "SCENARIO",
+      "prompt": "When your class starts a topic about the solar system, how would you most like to explore it?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_01_A",
+          "label": "Read an illustrated article explaining each planet's atmosphere",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_B",
+          "label": "Compare distances, orbital speeds, and temperatures in a data table",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_C",
+          "label": "Study an animated 3D visual map of planetary orbits",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_D",
+          "label": "Listen to a catchy mnemonic song naming the planets in order",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_02",
+      "type": "SCENARIO",
+      "prompt": "Your teacher asks you to explain the water cycle to younger students. What activity would you choose?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_02_A",
+          "label": "Act out evaporation, condensation, and rain using gestures and movement",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_B",
+          "label": "Take the students outside to examine morning dew and cloud formations",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_C",
+          "label": "Write a narrative story about a raindrop's journey from ocean to cloud",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_D",
+          "label": "Draw a flowchart tracing the cycle with temperature changes and arrows",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_03",
+      "type": "SCENARIO",
+      "prompt": "To prepare for a science exhibition on renewable energy, which project would you pick?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_03_A",
+          "label": "Create a detailed visual infographic showing solar panel and wind turbine designs",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_B",
+          "label": "Compose an energetic audio podcast with rhythmic sound effects",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_C",
+          "label": "Build a working cardboard windmill model with rotating blades",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_D",
+          "label": "Survey local weather conditions and record sunlight and wind patterns over a week",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_04",
+      "type": "SCENARIO",
+      "prompt": "When studying how ancient civilizations traded goods, what method helps you understand it best?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_04_A",
+          "label": "Analyze historical trade routes on an ancient geographic map",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_B",
+          "label": "Read journal excerpts written by ancient travelers and merchants",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_C",
+          "label": "Calculate exchange rates and coin valuations in trade transactions",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_D",
+          "label": "Participate in a hands-on classroom marketplace simulation trading replica goods",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_05",
+      "type": "SCENARIO",
+      "prompt": "If you are learning about bird migration, which resource would you find most interesting?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_05_A",
+          "label": "Listen to audio recordings comparing different bird calls and flock signals",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_B",
+          "label": "Track seasonal arrival times of migratory species in a nearby wetland",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_C",
+          "label": "Calculate travel distances and flight speeds using wing-span formulas",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_D",
+          "label": "Study color-coded flight corridors and altitude maps across continents",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_06",
+      "type": "SCENARIO",
+      "prompt": "During a history lesson on how message communication evolved, how would you engage?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_06_A",
+          "label": "Write a comparative essay analyzing letters versus telegrams",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_B",
+          "label": "Practice tapping out Morse code rhythms using sound beats",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_C",
+          "label": "Assemble and test a string-telephone acoustic demonstration",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_D",
+          "label": "Examine how carrier pigeons used magnetic fields and landmarks in nature to navigate",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_07",
+      "type": "SCENARIO",
+      "prompt": "When studying simple machines like levers and pulleys, what helps you grasp the concept?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_07_A",
+          "label": "Derive the mechanical advantage formula: force times distance",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_B",
+          "label": "Observe how bird beaks and animal jaws work as levers in nature",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_C",
+          "label": "Read historical accounts of how ancient builders used inclined planes",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_D",
+          "label": "Examine cross-section blueprints and vector diagrams of pulley systems",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_08",
+      "type": "SCENARIO",
+      "prompt": "To learn the periodic table and chemical elements, which technique appeals to you?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_08_A",
+          "label": "Memorize the elements with a rhyming song that matches atomic numbers",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_B",
+          "label": "Handle element samples and sort physical element cards by weight",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_C",
+          "label": "Analyze patterns in atomic weights and electron configurations",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_D",
+          "label": "Study a colorful color-coded poster grouping metals, non-metals, and gases",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_09",
+      "type": "SCENARIO",
+      "prompt": "When studying how plants adapt to harsh climates, which study approach do you prefer?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_09_A",
+          "label": "Collect leaf and bark specimens to classify moisture-retention features",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_B",
+          "label": "Read descriptive field notes written by botanists exploring arid regions",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_C",
+          "label": "Perform a lab experiment comparing water loss across waxed and non-waxed paper leaves",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_D",
+          "label": "Listen to an audio documentary with ambient desert sounds and expert commentary",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_10",
+      "type": "SCENARIO",
+      "prompt": "Your class is studying ocean currents. How would you prefer to explore this topic?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_10_A",
+          "label": "View animated satellite maps showing warm and cold ocean streams",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_B",
+          "label": "Solve equations relating water density, salinity, and temperature",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_C",
+          "label": "Investigate how marine species use current pathways for seasonal migration",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_D",
+          "label": "Read an adventure story of sailors navigating the Gulf Stream",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_11",
+      "type": "SCENARIO",
+      "prompt": "When discovering how sound waves travel through different materials, what would you do first?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_11_A",
+          "label": "Play different musical instruments and compare their pitch and resonance",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_B",
+          "label": "Touch a vibrating tuning fork placed against water and solid blocks",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_C",
+          "label": "Calculate wave frequency and wavelength using speed-of-sound formulas",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_D",
+          "label": "Look at oscilloscope diagrams illustrating crests, troughs, and amplitude",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_12",
+      "type": "SCENARIO",
+      "prompt": "In an ecology unit on food webs, how would you demonstrate how energy moves?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_12_A",
+          "label": "Write a descriptive guide introducing producers, herbivores, and apex predators",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_B",
+          "label": "Listen to a rhythmic spoken-word poem highlighting energy transfer across trophic levels",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_C",
+          "label": "Construct a food web with yarn and cards connecting classmates in a web activity",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_D",
+          "label": "Observe and document predator-prey relationships in a school garden ecosystem",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    }
+  ]
+}
