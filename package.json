@@ -10,12 +10,14 @@
   "scripts": {
     "build:shared": "npm run build --workspace=shared",
     "build:backend": "npm run build --workspace=backend",
-    "build:all": "npm run build:shared && npm run build:backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
     "db:generate": "npm run db:generate --workspace=backend",
     "db:push": "npm run db:push --workspace=backend",
     "db:migrate": "npm run db:migrate --workspace=backend",
     "db:seed": "npm run db:seed --workspace=backend",
     "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
     "test:backend": "npm run test --workspace=backend",
     "openapi:generate": "npm run openapi:generate --workspace=shared"
   }
