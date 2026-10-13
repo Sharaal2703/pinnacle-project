@@ -16,14 +16,20 @@ export class SeedService {
     await this.seedDemoUsers();
 
     console.log('Seeding questionnaire from docs/questionnaires/pre-assessment-v1-en.json...');
-    const questionnairePath = path.resolve(
-      __dirname,
-      '../../../../docs/questionnaires/pre-assessment-v1-en.json'
-    );
-    if (fs.existsSync(questionnairePath)) {
+    const candidatePaths = [
+      path.resolve(__dirname, '../../../docs/questionnaires/pre-assessment-v1-en.json'),
+      path.resolve(__dirname, '../../docs/questionnaires/pre-assessment-v1-en.json'),
+      path.resolve(__dirname, '../../../../docs/questionnaires/pre-assessment-v1-en.json'),
+      path.resolve(process.cwd(), 'docs/questionnaires/pre-assessment-v1-en.json'),
+      path.resolve(process.cwd(), '../docs/questionnaires/pre-assessment-v1-en.json')
+    ];
+    const questionnairePath = candidatePaths.find((p) => fs.existsSync(p));
+
+    if (questionnairePath) {
+      console.log(`Found questionnaire file at: ${questionnairePath}`);
       await this.loadQuestionnaireFile(questionnairePath);
     } else {
-      console.warn(`Questionnaire file not found at ${questionnairePath}`);
+      console.warn(`Questionnaire file not found in candidate paths:`, candidatePaths);
     }
 
     console.log('Seeding completed successfully!');

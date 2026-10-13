@@ -9,6 +9,7 @@ import { ConfigService } from './config.service';
 import { TimerService } from './timer.service';
 import { ScoringEngine, QuestionScoringItem, AnswerResponseItem } from './scoring.service';
 import { ProfileService } from './profile.service';
+import { SeedService } from './seed.service';
 import {
   StartAttemptResponse,
   SafeQuestionResponse,
@@ -68,15 +69,30 @@ export class AttemptService {
     }
 
     // Fetch approved active questions to construct the attempt's fixed order
-    const selfReportQuestions = await prisma.questionVersion.findMany({
+    let selfReportQuestions = await prisma.questionVersion.findMany({
       where: { isActive: true, reviewStatus: 'APPROVED', type: 'SELF_REPORT' },
       orderBy: { key: 'asc' }
     });
 
-    const scenarioQuestions = await prisma.questionVersion.findMany({
+    let scenarioQuestions = await prisma.questionVersion.findMany({
       where: { isActive: true, reviewStatus: 'APPROVED', type: 'SCENARIO' },
       orderBy: { key: 'asc' }
     });
+
+    if (selfReportQuestions.length < 6 || scenarioQuestions.length < 12) {
+      console.log('Assessment bank has fewer than 6 self-report or 12 scenario questions. Auto-seeding question bank...');
+      await SeedService.seedAll();
+
+      selfReportQuestions = await prisma.questionVersion.findMany({
+        where: { isActive: true, reviewStatus: 'APPROVED', type: 'SELF_REPORT' },
+        orderBy: { key: 'asc' }
+      });
+
+      scenarioQuestions = await prisma.questionVersion.findMany({
+        where: { isActive: true, reviewStatus: 'APPROVED', type: 'SCENARIO' },
+        orderBy: { key: 'asc' }
+      });
+    }
 
     if (selfReportQuestions.length < 6 || scenarioQuestions.length < 12) {
       throw new ValidationError(
