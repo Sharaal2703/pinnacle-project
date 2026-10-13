@@ -68,17 +68,30 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('all');
 
+  // Ensure scores is a safe array
+  const safeScores = Array.isArray(scores) ? scores : [];
+
   // Order for radar chart polygon (clockwise fixed order)
   const RADAR_ORDER = ['LING', 'LOGI', 'SPAT', 'MUSI', 'BODY', 'NATU'];
 
   // Map scores by pathway code
   const scoreMap = new Map<string, PathwayScoreRow>();
-  for (const s of scores) {
-    scoreMap.set(s.pathway_code, s);
+  for (const s of safeScores) {
+    if (s && s.pathway_code) {
+      scoreMap.set(s.pathway_code, s);
+    }
   }
 
   // Sorted descending by rank
-  const rankedScores = [...scores].sort((a, b) => a.rank - b.rank);
+  const rankedScores = [...safeScores].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
+
+  if (safeScores.length === 0) {
+    return (
+      <div className="card" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+        <p>No score calculations available to visualize yet.</p>
+      </div>
+    );
+  }
 
   // --- 1. Radar Chart Mathematics ---
   const cx = 220;
@@ -432,24 +445,28 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
               </tr>
             </thead>
             <tbody>
-              {rankedScores.map((s) => (
-                <tr key={s.pathway_code}>
-                  <td><strong>#{s.rank}</strong></td>
-                  <td>
-                    {PATHWAY_CONFIG[s.pathway_code]?.icon} {s.pathway_name} ({s.pathway_code})
-                  </td>
-                  <td>
-                    <strong>{s.score_0_100 != null ? `${s.score_0_100}%` : 'N/A'}</strong>
-                  </td>
-                  <td>{s.raw_score.toFixed(2)}</td>
-                  <td>{s.max_score.toFixed(2)}</td>
-                  <td>
-                    <span className="badge-tag" style={{ background: '#f1f5f9', color: '#334155' }}>
-                      {s.available ? 'Calculated' : 'Unavailable'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {rankedScores.map((s) => {
+                const rawVal = Number(s.raw_score ?? (s as any).rawScore ?? 0);
+                const maxVal = Number(s.max_score ?? (s as any).maxScore ?? 0);
+                return (
+                  <tr key={s.pathway_code}>
+                    <td><strong>#{s.rank}</strong></td>
+                    <td>
+                      {PATHWAY_CONFIG[s.pathway_code]?.icon} {s.pathway_name} ({s.pathway_code})
+                    </td>
+                    <td>
+                      <strong>{s.score_0_100 != null ? `${s.score_0_100}%` : 'N/A'}</strong>
+                    </td>
+                    <td>{isNaN(rawVal) ? '0.00' : rawVal.toFixed(2)}</td>
+                    <td>{isNaN(maxVal) ? '0.00' : maxVal.toFixed(2)}</td>
+                    <td>
+                      <span className="badge-tag" style={{ background: '#f1f5f9', color: '#334155' }}>
+                        {s.available ? 'Calculated' : 'Unavailable'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

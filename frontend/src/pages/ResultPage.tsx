@@ -30,7 +30,12 @@ function convertOutcomeToProfile(outcome: any): PreferenceProfile | null {
     near_tie: !!outcome.near_tie,
     dominant: dom,
     secondary: sec,
-    scores: outcome.scores
+    scores: (outcome.scores || []).map((s: any) => ({
+      ...s,
+      raw_score: Number(s.raw_score ?? s.rawScore ?? 0),
+      max_score: Number(s.max_score ?? s.maxScore ?? 0),
+      score_0_100: s.score_0_100 != null ? Number(s.score_0_100) : (s.score0To100 != null ? Number(s.score0To100) : null)
+    }))
   };
 }
 
@@ -53,7 +58,16 @@ export const ResultPage: React.FC = () => {
   const loadProfile = async () => {
     try {
       const data = await api.getCurrentProfile();
-      setProfile(data);
+      const normalizedScores = (data.scores || []).map((s: any) => ({
+        ...s,
+        raw_score: Number(s.raw_score ?? s.rawScore ?? 0),
+        max_score: Number(s.max_score ?? s.maxScore ?? 0),
+        score_0_100: s.score_0_100 != null ? Number(s.score_0_100) : null
+      }));
+      setProfile({
+        ...data,
+        scores: normalizedScores
+      });
       setError(null);
     } catch (err: any) {
       if (!initialProfile) {
@@ -122,7 +136,21 @@ export const ResultPage: React.FC = () => {
   }
 
   if (!profile) {
-    return null;
+    return (
+      <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center', padding: '3rem 2rem' }}>
+        <div style={{ display: 'inline-flex', padding: '1rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '1rem' }}>
+          <Compass size={40} />
+        </div>
+        <h2>No Active Assessment Found</h2>
+        <p style={{ color: '#64748b', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+          You have not completed the 18-question pre-assessment yet. Take the assessment to uncover your primary and secondary learning preferences!
+        </p>
+        <Link to="/instructions" className="btn btn-primary btn-lg">
+          <span>Start Pre-Assessment</span>
+          <ArrowRight size={20} />
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -155,12 +183,12 @@ export const ResultPage: React.FC = () => {
           <div className="pathway-card-header">
             <span className="badge-tag primary">Primary Pathway</span>
             <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#4f46e5' }}>
-              {profile.dominant.score_0_100 != null ? `${Math.round(profile.dominant.score_0_100)}%` : ''}
+              {profile.dominant?.score_0_100 != null ? `${Math.round(profile.dominant.score_0_100)}%` : ''}
             </span>
           </div>
-          <div className="pathway-name">{profile.dominant.name}</div>
+          <div className="pathway-name">{profile.dominant?.name}</div>
           <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
-            {PATHWAY_DESCRIPTIONS[profile.dominant.code] || 'Primary learning preference.'}
+            {profile.dominant?.code ? (PATHWAY_DESCRIPTIONS[profile.dominant.code] || 'Primary learning preference.') : 'Primary learning preference.'}
           </p>
         </div>
 
@@ -168,21 +196,21 @@ export const ResultPage: React.FC = () => {
           <div className="pathway-card-header">
             <span className="badge-tag secondary">Secondary Pathway</span>
             <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#06b6d4' }}>
-              {profile.secondary.score_0_100 != null ? `${Math.round(profile.secondary.score_0_100)}%` : ''}
+              {profile.secondary?.score_0_100 != null ? `${Math.round(profile.secondary.score_0_100)}%` : ''}
             </span>
           </div>
-          <div className="pathway-name">{profile.secondary.name}</div>
+          <div className="pathway-name">{profile.secondary?.name}</div>
           <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
-            {PATHWAY_DESCRIPTIONS[profile.secondary.code] || 'Secondary learning preference.'}
+            {profile.secondary?.code ? (PATHWAY_DESCRIPTIONS[profile.secondary.code] || 'Secondary learning preference.') : 'Secondary learning preference.'}
           </p>
         </div>
       </div>
 
       {/* Multi-Plot Visualization Engine */}
       <ProfileChart
-        scores={profile.scores}
-        dominantCode={profile.dominant.code}
-        secondaryCode={profile.secondary.code}
+        scores={profile.scores || []}
+        dominantCode={profile.dominant?.code}
+        secondaryCode={profile.secondary?.code}
       />
 
       {/* Scientific Framing Disclaimer */}

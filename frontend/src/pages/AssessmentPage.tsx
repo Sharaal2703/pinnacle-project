@@ -166,6 +166,30 @@ export const AssessmentPage: React.FC = () => {
     }
   };
 
+  if (isFinished && !error) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+        <RefreshCw className="spin" size={40} style={{ color: '#4f46e5', marginBottom: '1rem' }} />
+        <h2>Calculating your learning preference profile...</h2>
+        <p style={{ color: '#64748b' }}>Analyzing your responses across 6 intelligence pathways</p>
+      </div>
+    );
+  }
+
+  if (isFinished && error) {
+    return (
+      <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center' }}>
+        <AlertCircle size={48} style={{ color: '#ef4444', margin: '0 auto 1rem auto' }} />
+        <h2 style={{ marginBottom: '0.5rem' }}>Unable to Finalize Assessment</h2>
+        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{error}</p>
+        <button type="button" className="btn btn-primary" onClick={() => attemptId && handleFinalSubmit(attemptId)}>
+          <RefreshCw size={18} />
+          <span>Retry Submitting</span>
+        </button>
+      </div>
+    );
+  }
+
   if (isLoading && !currentQuestion) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>

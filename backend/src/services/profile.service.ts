@@ -58,13 +58,13 @@ export class ProfileService {
           id: p.dominantPathway.id,
           code: p.dominantPathway.code,
           name: p.dominantPathway.name,
-          score_0_100: domScore?.normalizedScore ? Number(domScore.normalizedScore) : null
+          score_0_100: domScore?.normalizedScore != null ? Number(domScore.normalizedScore) : null
         },
         secondary: {
           id: p.secondaryPathway.id,
           code: p.secondaryPathway.code,
           name: p.secondaryPathway.name,
-          score_0_100: secScore?.normalizedScore ? Number(secScore.normalizedScore) : null
+          score_0_100: secScore?.normalizedScore != null ? Number(secScore.normalizedScore) : null
         }
       };
     });
@@ -160,6 +160,8 @@ export class ProfileService {
       scores: p.scores.map((s: any) => ({
         pathway_code: s.pathway.code,
         pathway_name: s.pathway.name,
+        raw_score: Number(s.rawScore),
+        max_score: Number(s.maxScore),
         rawScore: Number(s.rawScore),
         maxScore: Number(s.maxScore),
         score_0_100: s.normalizedScore != null ? Number(s.normalizedScore) : null,

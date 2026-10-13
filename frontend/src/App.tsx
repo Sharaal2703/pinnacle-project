@@ -10,6 +10,7 @@ import { ResultPage } from './pages/ResultPage';
 import { IncompletePage } from './pages/IncompletePage';
 import { ProfileHistoryPage } from './pages/ProfileHistoryPage';
 import { AdminPage } from './pages/AdminPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import type { Role } from '@pinnacle/shared';
 
 interface ProtectedRouteProps {
@@ -54,7 +55,8 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <div className="app-container">
           <Navbar />
-          <main className="main-content">
+          <ErrorBoundary>
+            <main className="main-content">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomeRedirect />} />
@@ -116,7 +118,8 @@ export const App: React.FC = () => {
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </main>
+            </main>
+          </ErrorBoundary>
         </div>
       </BrowserRouter>
     </AuthProvider>
