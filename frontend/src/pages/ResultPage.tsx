@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import { ProfileChart } from '../components/ProfileChart';
 import type { PreferenceProfile } from '@pinnacle/shared';
-import { Award, Compass, RefreshCw, History, AlertCircle, Info, Sparkles } from 'lucide-react';
+import { Award, Compass, RefreshCw, History, AlertCircle, Info, Sparkles, ArrowRight } from 'lucide-react';
 
 const PATHWAY_DESCRIPTIONS: Record<string, string> = {
   LING: 'Enjoys explanations, stories, reading, vocabulary, and expressing concepts in words.',
@@ -14,10 +14,35 @@ const PATHWAY_DESCRIPTIONS: Record<string, string> = {
   NATU: 'Engages deeply with classification, environmental examples, living systems, and nature.'
 };
 
+function convertOutcomeToProfile(outcome: any): PreferenceProfile | null {
+  if (!outcome || !outcome.scores || outcome.status !== 'SCORED') return null;
+  const dom = outcome.dominant || outcome.primary;
+  const sec = outcome.secondary;
+  if (!dom || !sec) return null;
+
+  return {
+    id: outcome.id || outcome.attempt_id,
+    student_id: outcome.student_id || '',
+    attempt_id: outcome.attempt_id,
+    is_current: true,
+    created_at: outcome.created_at || new Date().toISOString(),
+    scoring_version: outcome.scoring_version || '1.0.0',
+    near_tie: !!outcome.near_tie,
+    dominant: dom,
+    secondary: sec,
+    scores: outcome.scores
+  };
+}
+
 export const ResultPage: React.FC = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<PreferenceProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const location = useLocation();
+
+  const stateOutcome = (location.state as any)?.outcome;
+  const initialProfile = convertOutcomeToProfile(stateOutcome);
+
+  const [profile, setProfile] = useState<PreferenceProfile | null>(initialProfile);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialProfile);
   const [error, setError] = useState<string | null>(null);
   const [isRetaking, setIsRetaking] = useState<boolean>(false);
 
@@ -26,17 +51,18 @@ export const ResultPage: React.FC = () => {
   }, []);
 
   const loadProfile = async () => {
-    setIsLoading(true);
-    setError(null);
     try {
       const data = await api.getCurrentProfile();
       setProfile(data);
+      setError(null);
     } catch (err: any) {
-      if (err instanceof ApiError && err.code === 'PROFILE_NOT_FOUND') {
-        navigate('/instructions');
-        return;
+      if (!initialProfile) {
+        if (err instanceof ApiError && err.code === 'PROFILE_NOT_FOUND') {
+          setError('PROFILE_NOT_FOUND');
+        } else {
+          setError(err?.message || 'Could not load preference profile.');
+        }
       }
-      setError(err?.message || 'Could not load preference profile.');
     } finally {
       setIsLoading(false);
     }
@@ -53,28 +79,50 @@ export const ResultPage: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !profile) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
         <RefreshCw className="spin" size={40} style={{ color: '#4f46e5', marginBottom: '1rem' }} />
         <h2>Generating your preference profile...</h2>
-        <p style={{ color: '#64748b' }}>Calculating pathway scores</p>
+        <p style={{ color: '#64748b' }}>Calculating pathway scores and visualizations</p>
       </div>
     );
   }
 
-  if (error || !profile) {
+  if (error === 'PROFILE_NOT_FOUND' && !profile) {
     return (
-      <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center' }}>
-        <AlertCircle size={48} style={{ color: '#ef4444', margin: '0 auto 1rem auto' }} />
-        <h2>No Profile Available</h2>
-        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{error || 'You have not completed an assessment attempt yet.'}</p>
-        <Link to="/instructions" className="btn btn-primary">
-          <Compass size={18} />
-          <span>Go to Assessment</span>
+      <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center', padding: '3rem 2rem' }}>
+        <div style={{ display: 'inline-flex', padding: '1rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '1rem' }}>
+          <Compass size={40} />
+        </div>
+        <h2>No Active Assessment Found</h2>
+        <p style={{ color: '#64748b', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+          You have not completed the 18-question pre-assessment yet. Take the assessment to uncover your primary and secondary learning preferences!
+        </p>
+        <Link to="/instructions" className="btn btn-primary btn-lg">
+          <span>Start Pre-Assessment</span>
+          <ArrowRight size={20} />
         </Link>
       </div>
     );
+  }
+
+  if (error && !profile) {
+    return (
+      <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center' }}>
+        <AlertCircle size={48} style={{ color: '#ef4444', margin: '0 auto 1rem auto' }} />
+        <h2>Unable to Load Profile</h2>
+        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{error}</p>
+        <button type="button" className="btn btn-primary" onClick={loadProfile}>
+          <RefreshCw size={18} />
+          <span>Retry Loading</span>
+        </button>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return null;
   }
 
   return (
@@ -87,7 +135,7 @@ export const ResultPage: React.FC = () => {
         </div>
 
         <h1>Your Learning Preferences</h1>
-        <p style={{ fontSize: '1.1rem', maxWidth: '700px', opacity: 0.95 }}>
+        <p style={{ fontSize: '1.1rem', maxWidth: '720px', opacity: 0.95, lineHeight: 1.5 }}>
           Based on your choices, we have identified your primary and secondary pathways to help guide how lessons are presented in Module 2!
         </p>
 
@@ -95,7 +143,7 @@ export const ResultPage: React.FC = () => {
           <div style={{ marginTop: '1.25rem', background: 'rgba(245, 158, 11, 0.25)', border: '1.5px solid #fef08a', padding: '0.85rem 1.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Info size={22} style={{ color: '#fef08a', flexShrink: 0 }} />
             <div>
-              <strong>Blended / Similar Preferences:</strong> Your top two pathways have very close scores (within 5 points), indicating you learn equally well through both representations!
+              <strong>Blended / Similar Preferences:</strong> Your top two pathways have very close scores (within 5 points), indicating you engage equally well across both modalities!
             </div>
           </div>
         )}
@@ -106,7 +154,7 @@ export const ResultPage: React.FC = () => {
         <div className="pathway-card primary">
           <div className="pathway-card-header">
             <span className="badge-tag primary">Primary Pathway</span>
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#4f46e5' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#4f46e5' }}>
               {profile.dominant.score_0_100 != null ? `${Math.round(profile.dominant.score_0_100)}%` : ''}
             </span>
           </div>
@@ -119,7 +167,7 @@ export const ResultPage: React.FC = () => {
         <div className="pathway-card secondary">
           <div className="pathway-card-header">
             <span className="badge-tag secondary">Secondary Pathway</span>
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#06b6d4' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#06b6d4' }}>
               {profile.secondary.score_0_100 != null ? `${Math.round(profile.secondary.score_0_100)}%` : ''}
             </span>
           </div>
@@ -130,12 +178,16 @@ export const ResultPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile Chart & Full Breakdown */}
-      <ProfileChart scores={profile.scores} />
+      {/* Multi-Plot Visualization Engine */}
+      <ProfileChart
+        scores={profile.scores}
+        dominantCode={profile.dominant.code}
+        secondaryCode={profile.secondary.code}
+      />
 
-      {/* Conceptual Framing / Scientific Integrity Disclaimer */}
-      <div className="disclaimer-box" style={{ marginBottom: '2rem' }}>
-        <strong>Important Note on Learning Profiles:</strong> MindBridge uses this profile to recommend engaging study formats (such as animations, stories, puzzles, or hands-on activities). It reflects your current learning preference choices; it is not a clinical or psychological intelligence diagnosis, nor a label of fixed ability.
+      {/* Scientific Framing Disclaimer */}
+      <div className="disclaimer-box" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
+        <strong>Important Scientific Framing:</strong> MindBridge uses this profile to recommend engaging study representations (such as diagrams, stories, formulas, audio, hands-on activities, or real-world observation). It reflects your current learning preference choices; it is not a psychological or clinical intelligence test, nor a label of fixed ability.
       </div>
 
       {/* Bottom Actions */}

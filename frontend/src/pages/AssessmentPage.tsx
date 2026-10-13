@@ -152,7 +152,7 @@ export const AssessmentPage: React.FC = () => {
     try {
       const outcome = await api.submitAttempt(aid);
       if (outcome.status === 'SCORED') {
-        navigate('/result');
+        navigate('/result', { state: { outcome } });
       } else {
         navigate('/incomplete', { state: { outcome } });
       }
