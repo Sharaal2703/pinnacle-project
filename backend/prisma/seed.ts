@@ -1,3 +1,4 @@
+import '../src/config/env';
 import { SeedService } from '../src/services/seed.service';
 import { prisma } from '../src/utils/prisma';
 
