@@ -1,0 +1,417 @@
+{
+  "questionnaire_id": "mindbridge-pre-v1-en",
+  "language_code": "en",
+  "version": "1.0.0",
+  "grade_min": 6,
+  "grade_max": 8,
+  "review": {
+    "status": "APPROVED",
+    "reviewer_name": "Middle School Curriculum Review Panel",
+    "review_date": "2026-10-14T00:00:00Z",
+    "notes": "Reviewed and verified against VARK and Multiple Intelligences questionnaire sources with balanced 6-pathway coverage."
+  },
+  "items": [
+    {
+      "key": "SR_LING",
+      "type": "SELF_REPORT",
+      "prompt": "When learning a new topic, I understand best by reading written explanations, taking detailed notes, and expressing ideas in words.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "LING",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_LOGI",
+      "type": "SELF_REPORT",
+      "prompt": "When solving a problem or studying data, I prefer breaking it down into step-by-step logic, finding patterns, and working with numbers.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "LOGI",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_SPAT",
+      "type": "SELF_REPORT",
+      "prompt": "When I am learning something new, I prefer seeing information arranged in diagrams, charts, visual maps, and illustrations.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "SPAT",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_MUSI",
+      "type": "SELF_REPORT",
+      "prompt": "When I need to remember information, I prefer using tunes, rhythms, rhymes, or audio recordings to help the ideas stick.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "MUSI",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_BODY",
+      "type": "SELF_REPORT",
+      "prompt": "When trying to understand how something works, I learn best by hands-on practice, assembling parts, and doing activities with my hands.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "BODY",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SR_NATU",
+      "type": "SELF_REPORT",
+      "prompt": "When studying real-world topics, I prefer observing living things, exploring nature, and classifying specimens into groups.",
+      "weight": 1.0,
+      "time_limit_seconds": 60,
+      "pathway_code": "NATU",
+      "rating_scale": [1, 2, 3, 4, 5]
+    },
+    {
+      "key": "SC_01",
+      "type": "SCENARIO",
+      "prompt": "You are having trouble assembling a model or project that came in parts. What would you do?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_01_A",
+          "label": "Go through the step-by-step diagrams and exploded drawings to see how parts connect visually",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_B",
+          "label": "Try arranging and handling the physical pieces to test how they fit together",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_C",
+          "label": "Read the written assembly instructions and text notes carefully",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_01_D",
+          "label": "Analyze the mechanical logic and interlocking order of the components",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_02",
+      "type": "SCENARIO",
+      "prompt": "You want to learn about the plants and animals in a wildlife nature reserve. What would you prefer to do?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_02_A",
+          "label": "Observe animal habits outdoors and examine wild plant specimens directly",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_B",
+          "label": "Listen to audio recordings of bird calls, songs, and natural forest sounds",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_C",
+          "label": "Study color-coded maps, habitat infographics, and wildlife photographs",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_02_D",
+          "label": "Read articles, printed field guides, and written descriptions of the wildlife",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_03",
+      "type": "SCENARIO",
+      "prompt": "When investigating how environmental factors affect soil and water in your area, you would prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_03_A",
+          "label": "Collect samples with your hands, set up test tubes, and perform the physical experiment",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_B",
+          "label": "Compare real soil types and plant growth outdoors in different natural surroundings",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_C",
+          "label": "Calculate measurements, graph data points, and test cause-and-effect patterns",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_03_D",
+          "label": "Listen to an audio podcast of environmental scientists discussing the findings",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_04",
+      "type": "SCENARIO",
+      "prompt": "You want to learn how to play a new board game or strategy game with your classmates. You would:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_04_A",
+          "label": "Figure out the mathematical rules, scoring probabilities, and winning logic",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_B",
+          "label": "Jump straight in, move the physical game pieces, and learn by trial and error",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_C",
+          "label": "Study visual diagrams showing the board layout and strategic move pathways",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_04_D",
+          "label": "Read through the full written rulebook and card instructions from start to finish",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_05",
+      "type": "SCENARIO",
+      "prompt": "When learning how musical instruments and voices create sound waves and pitch, you prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_05_A",
+          "label": "Listen to melodic patterns, rhythm variations, and harmonic pitch differences",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_B",
+          "label": "Look at visual waveform diagrams showing sound frequencies and amplitudes",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_C",
+          "label": "Read a descriptive text explaining how acoustics and sound resonance work",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_05_D",
+          "label": "Investigate how natural animal calls and hollow bamboo produce sounds in the wild",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_06",
+      "type": "SCENARIO",
+      "prompt": "You want to understand how a complex bicycle or mechanical gear system functions. You prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_06_A",
+          "label": "Take the mechanism apart, adjust the gears, and test it with your hands",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_B",
+          "label": "Calculate gear ratios and pedal revolutions to determine mechanical advantage",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_C",
+          "label": "Listen to the rhythmic clicks and shifting sounds of the chain to diagnose it",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_06_D",
+          "label": "Observe how animal skeleton joints and levers in nature mirror mechanical gears",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_07",
+      "type": "SCENARIO",
+      "prompt": "You are exploring a new historic city or landmark for the first time. You would prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_07_A",
+          "label": "Use an illustrated visual map with landmarks, street layouts, and photos",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_B",
+          "label": "Read written historic plaques, brochures, and guidebook articles",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_C",
+          "label": "Walk through the streets and experience the physical setting firsthand",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_07_D",
+          "label": "Listen to a walking audio tour narrated with ambient sounds and background music",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_08",
+      "type": "SCENARIO",
+      "prompt": "When studying planetary orbits and solar system phenomena, you prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_08_A",
+          "label": "Compare planetary distances, orbital speeds, and temperatures in data tables",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_B",
+          "label": "Study 3D visual models and star charts showing orbital paths",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_C",
+          "label": "Memorize the planetary order using a catchy rhythmic song or mnemonic rhyme",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_08_D",
+          "label": "Observe the night sky outdoors and track moon phases in the real environment",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_09",
+      "type": "SCENARIO",
+      "prompt": "When learning new vocabulary and expressions in a language, what helps you most?",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_09_A",
+          "label": "Read example sentences, write word definitions, and use written flashcards",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_B",
+          "label": "Identify grammatical rules, word root logic, and sentence syntax patterns",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_C",
+          "label": "Act out word meanings through gestures, role-play, and hands-on movement",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_09_D",
+          "label": "Learn words for natural objects by observing plants, animals, and weather outdoors",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_10",
+      "type": "SCENARIO",
+      "prompt": "You have to present an interesting school project to your classmates. You would prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_10_A",
+          "label": "Design visual posters with vibrant infographics, diagrams, and illustrations",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_B",
+          "label": "Record a lively audio podcast with commentary, background music, and sound cues",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_C",
+          "label": "Build an interactive hands-on model that classmates can touch and try",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_10_D",
+          "label": "Write an engaging story or narrative article explaining the concepts clearly",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_11",
+      "type": "SCENARIO",
+      "prompt": "When learning how animals survive in extreme desert or polar environments, you prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_11_A",
+          "label": "Examine animal fur insulation, feather structures, and real water-retaining plant adaptations",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_B",
+          "label": "View colorful cross-section diagrams and geographic climate distribution maps",
+          "pathway_contributions": [{ "pathway_code": "SPAT", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_C",
+          "label": "Analyze energy conservation formulas and temperature retention data",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_11_D",
+          "label": "Listen to audio documentaries capturing wilderness soundscapes and animal calls",
+          "pathway_contributions": [{ "pathway_code": "MUSI", "contribution": 1.0 }]
+        }
+      ]
+    },
+    {
+      "key": "SC_12",
+      "type": "SCENARIO",
+      "prompt": "When exploring how energy flows through plants, herbivores, and predators in an ecosystem, you would prefer to:",
+      "weight": 1.0,
+      "time_limit_seconds": 90,
+      "options": [
+        {
+          "key": "SC_12_A",
+          "label": "Calculate percentage energy loss at each trophic level using a mathematical model",
+          "pathway_contributions": [{ "pathway_code": "LOGI", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_B",
+          "label": "Trace producer and predator relationships by observing living species in a school garden",
+          "pathway_contributions": [{ "pathway_code": "NATU", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_C",
+          "label": "Participate in an active simulation passing energy tokens from sun to plants to animals",
+          "pathway_contributions": [{ "pathway_code": "BODY", "contribution": 1.0 }]
+        },
+        {
+          "key": "SC_12_D",
+          "label": "Read written case studies and field reports describing food web balances",
+          "pathway_contributions": [{ "pathway_code": "LING", "contribution": 1.0 }]
+        }
+      ]
+    }
+  ]
+}

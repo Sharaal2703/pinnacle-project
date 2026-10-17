@@ -1,0 +1,223 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum PathwayCode {
+  LING
+  LOGI
+  SPAT
+  MUSI
+  BODY
+  NATU
+}
+
+enum QuestionType {
+  SELF_REPORT
+  SCENARIO
+}
+
+enum ReviewStatus {
+  DRAFT
+  APPROVED
+  REJECTED
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SCORED
+  INCOMPLETE
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(STUDENT)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  student      Student?
+
+  @@map("users")
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade     Int
+  createdAt DateTime @default(now())
+
+  attempts  AssessmentAttempt[]
+  profiles  PreferenceProfile[]
+
+  @@map("students")
+}
+
+model Pathway {
+  id        String      @id @default(uuid())
+  code      PathwayCode @unique
+  name      String
+
+  selfReportQuestions QuestionVersion[]
+  optionMappings      QuestionOptionMapping[]
+  dominantProfiles    PreferenceProfile[]     @relation("DominantPathway")
+  secondaryProfiles   PreferenceProfile[]    @relation("SecondaryPathway")
+  scores              PreferenceScore[]
+
+  @@map("pathways")
+}
+
+model QuestionVersion {
+  id           String       @id @default(uuid())
+  key          String
+  version      Int          @default(1)
+  type         QuestionType
+  prompt       String
+  gradeMin     Int          @default(6)
+  gradeMax     Int          @default(8)
+  weight       Decimal      @default(1.0)
+  timeLimitSec Int          @default(60)
+  reviewStatus ReviewStatus @default(DRAFT)
+  reviewerName String?
+  reviewNotes  String?
+  reviewedAt   DateTime?
+  isActive     Boolean      @default(true)
+  pathwayId    String?
+  pathway      Pathway?     @relation(fields: [pathwayId], references: [id])
+  createdAt    DateTime     @default(now())
+
+  options   QuestionOption[]
+  responses AssessmentResponse[]
+
+  @@unique([key, version])
+  @@map("question_versions")
+}
+
+model QuestionOption {
+  id                String          @id @default(uuid())
+  questionVersionId String
+  questionVersion   QuestionVersion @relation(fields: [questionVersionId], references: [id], onDelete: Cascade)
+  optionKey         String
+  label             String
+  orderIndex        Int             @default(0)
+
+  pathwayMappings QuestionOptionMapping[]
+  responses       AssessmentResponse[]
+
+  @@unique([questionVersionId, optionKey])
+  @@map("question_options")
+}
+
+model QuestionOptionMapping {
+  id           String         @id @default(uuid())
+  optionId     String
+  option       QuestionOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  pathwayId    String
+  pathway      Pathway        @relation(fields: [pathwayId], references: [id])
+  contribution Decimal        @default(1.0)
+
+  @@unique([optionId, pathwayId])
+  @@map("question_option_mappings")
+}
+
+model AssessmentAttempt {
+  id                   String        @id @default(uuid())
+  studentId            String
+  student              Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  attemptNo            Int           @default(1)
+  status               AttemptStatus @default(IN_PROGRESS)
+  questionOrder        Json          // array of QuestionVersion IDs in fixed order
+  currentIndex         Int           @default(1) // 1 to 18
+  startedAt            DateTime      @default(now())
+  submittedAt          DateTime?
+  scoringConfigVersion String        @default("1.0.0")
+
+  responses AssessmentResponse[]
+  profile   PreferenceProfile?
+
+  @@unique([studentId, attemptNo])
+  @@map("assessment_attempts")
+}
+
+model AssessmentResponse {
+  id                String          @id @default(uuid())
+  attemptId         String
+  attempt           AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionVersionId String
+  questionVersion   QuestionVersion @relation(fields: [questionVersionId], references: [id])
+  optionId          String?
+  option            QuestionOption? @relation(fields: [optionId], references: [id])
+  answerJson        Json            // { rating: number } or { option_id: string }
+  shownAt           DateTime
+  answeredAt        DateTime?
+  timeTakenMs       Int?
+  timedOut          Boolean         @default(false)
+  responseWeight    Decimal         @default(0.0)
+
+  @@unique([attemptId, questionVersionId])
+  @@map("assessment_responses")
+}
+
+model PreferenceProfile {
+  id                 String   @id @default(uuid())
+  studentId          String
+  student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  attemptId          String   @unique
+  attempt            AssessmentAttempt @relation(fields: [attemptId], references: [id])
+  isCurrent          Boolean  @default(true)
+  dominantPathwayId  String
+  dominantPathway    Pathway  @relation("DominantPathway", fields: [dominantPathwayId], references: [id])
+  secondaryPathwayId String
+  secondaryPathway   Pathway  @relation("SecondaryPathway", fields: [secondaryPathwayId], references: [id])
+  nearTie            Boolean  @default(false)
+  scoringVersion     String   @default("1.0.0")
+  createdAt          DateTime @default(now())
+
+  scores PreferenceScore[]
+
+  @@map("preference_profiles")
+}
+
+model PreferenceScore {
+  id              String            @id @default(uuid())
+  profileId       String
+  profile         PreferenceProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  pathwayId       String
+  pathway         Pathway           @relation(fields: [pathwayId], references: [id])
+  rawScore        Decimal           @default(0.0)
+  maxScore        Decimal           @default(0.0)
+  normalizedScore Decimal?
+  rankNo          Int
+
+  @@unique([profileId, pathwayId])
+  @@map("preference_scores")
+}
+
+model AssessmentConfig {
+  id                    String   @id @default(uuid())
+  version               String   @unique
+  totalLimitSec         Int      @default(1500)
+  selfReportLimitSec    Int      @default(60)
+  scenarioLimitSec      Int      @default(90)
+  gracePeriodSec        Int      @default(2)
+  minAnsweredCount      Int      @default(15)
+  nearTieMargin         Decimal  @default(5.0)
+  defaultQuestionWeight Decimal  @default(1.0)
+  scoringFormulaVersion String   @default("1.0.0")
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+
+  @@map("assessment_configs")
+}
