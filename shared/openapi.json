@@ -1,0 +1,3880 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MindBridge Pre-Assessment API",
+    "version": "1.0.0",
+    "description": "Official API specification for MindBridge Pre-Assessment Module, governing Student Assessment and Admin Question Bank/Config operations."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "issue": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "issue"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          },
+          "grade": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8
+          }
+        },
+        "required": [
+          "name",
+          "username",
+          "password",
+          "grade"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "STUDENT",
+                  "ADMIN"
+                ]
+              },
+              "grade": {
+                "type": "integer",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "username",
+              "role"
+            ]
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ]
+      },
+      "UserSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "STUDENT",
+              "ADMIN"
+            ]
+          },
+          "grade": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "username",
+          "role"
+        ]
+      },
+      "QuestionVersion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SELF_REPORT",
+              "SCENARIO"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "grade_min": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8
+          },
+          "grade_max": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "reviewer_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "review_notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewed_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "pathway_code": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "LING",
+              "LOGI",
+              "SPAT",
+              "MUSI",
+              "BODY",
+              "NATU"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "option_key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "order_index": {
+                  "type": "integer"
+                },
+                "pathway_contributions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pathway_code": {
+                        "type": "string",
+                        "enum": [
+                          "LING",
+                          "LOGI",
+                          "SPAT",
+                          "MUSI",
+                          "BODY",
+                          "NATU"
+                        ]
+                      },
+                      "contribution": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "pathway_code",
+                      "contribution"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "option_key",
+                "label",
+                "order_index"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "version",
+          "type",
+          "prompt",
+          "grade_min",
+          "grade_max",
+          "weight",
+          "time_limit_seconds",
+          "review_status",
+          "is_active",
+          "options"
+        ]
+      },
+      "CreateQuestionInput": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SELF_REPORT",
+              "SCENARIO"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grade_min": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8,
+            "default": 6
+          },
+          "grade_max": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8,
+            "default": 8
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 3,
+            "default": 1
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "pathway_code": {
+            "type": "string",
+            "enum": [
+              "LING",
+              "LOGI",
+              "SPAT",
+              "MUSI",
+              "BODY",
+              "NATU"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "option_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "order_index": {
+                  "type": "integer",
+                  "default": 0
+                },
+                "pathway_contributions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pathway_code": {
+                        "type": "string",
+                        "enum": [
+                          "LING",
+                          "LOGI",
+                          "SPAT",
+                          "MUSI",
+                          "BODY",
+                          "NATU"
+                        ]
+                      },
+                      "contribution": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "pathway_code",
+                      "contribution"
+                    ]
+                  },
+                  "default": []
+                }
+              },
+              "required": [
+                "option_key",
+                "label"
+              ]
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "key",
+          "type",
+          "prompt"
+        ]
+      },
+      "UpdateQuestionInput": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grade_min": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8
+          },
+          "grade_max": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 8
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "pathway_code": {
+            "type": "string",
+            "enum": [
+              "LING",
+              "LOGI",
+              "SPAT",
+              "MUSI",
+              "BODY",
+              "NATU"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "option_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "order_index": {
+                  "type": "integer",
+                  "default": 0
+                },
+                "pathway_contributions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pathway_code": {
+                        "type": "string",
+                        "enum": [
+                          "LING",
+                          "LOGI",
+                          "SPAT",
+                          "MUSI",
+                          "BODY",
+                          "NATU"
+                        ]
+                      },
+                      "contribution": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "pathway_code",
+                      "contribution"
+                    ]
+                  },
+                  "default": []
+                }
+              },
+              "required": [
+                "option_key",
+                "label"
+              ]
+            }
+          }
+        }
+      },
+      "ReviewQuestionInput": {
+        "type": "object",
+        "properties": {
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "reviewer_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "review_notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_status",
+          "reviewer_name"
+        ]
+      },
+      "AssessmentConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "string"
+          },
+          "total_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "self_report_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "scenario_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "grace_period_seconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "min_answered_count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "near_tie_margin": {
+            "type": "number",
+            "minimum": 0
+          },
+          "default_question_weight": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "scoring_formula_version": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "total_limit_seconds",
+          "self_report_limit_seconds",
+          "scenario_limit_seconds",
+          "grace_period_seconds",
+          "min_answered_count",
+          "near_tie_margin",
+          "default_question_weight",
+          "scoring_formula_version",
+          "is_active"
+        ]
+      },
+      "UpdateAssessmentConfig": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "total_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "self_report_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "scenario_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "grace_period_seconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "min_answered_count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "near_tie_margin": {
+            "type": "number",
+            "minimum": 0
+          },
+          "default_question_weight": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "scoring_formula_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ]
+      },
+      "StartAttemptResponse": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempt_no": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "IN_PROGRESS",
+              "SCORED",
+              "INCOMPLETE"
+            ]
+          },
+          "current_index": {
+            "type": "integer"
+          },
+          "total_questions": {
+            "type": "integer"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assessment_remaining_seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "attempt_id",
+          "attempt_no",
+          "status",
+          "current_index",
+          "total_questions",
+          "started_at",
+          "assessment_remaining_seconds"
+        ]
+      },
+      "SafeQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SELF_REPORT",
+              "SCENARIO"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "rating_scale": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ]
+            }
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "question_remaining_seconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "assessment_remaining_seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "attempt_id",
+          "question_id",
+          "index",
+          "total",
+          "type",
+          "prompt",
+          "options",
+          "time_limit_seconds",
+          "question_remaining_seconds",
+          "assessment_remaining_seconds"
+        ]
+      },
+      "SubmitAnswerRequest": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "answer": {
+            "type": "object",
+            "properties": {
+              "rating": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "option_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "required": [
+          "question_id",
+          "answer"
+        ]
+      },
+      "SubmitAnswerResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "next_index": {
+            "type": "integer"
+          },
+          "is_completed": {
+            "type": "boolean"
+          },
+          "timed_out": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "message",
+          "next_index",
+          "is_completed"
+        ]
+      },
+      "SubmitAttemptResponse": {
+        "type": "object",
+        "properties": {
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "IN_PROGRESS",
+              "SCORED",
+              "INCOMPLETE"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          },
+          "secondary": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          },
+          "near_tie": {
+            "type": "boolean"
+          },
+          "scoring_version": {
+            "type": "string"
+          },
+          "answered_count": {
+            "type": "integer"
+          },
+          "timed_out_count": {
+            "type": "integer"
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "pathway_code": {
+                  "type": "string",
+                  "enum": [
+                    "LING",
+                    "LOGI",
+                    "SPAT",
+                    "MUSI",
+                    "BODY",
+                    "NATU"
+                  ]
+                },
+                "pathway_name": {
+                  "type": "string"
+                },
+                "raw_score": {
+                  "type": "number"
+                },
+                "max_score": {
+                  "type": "number"
+                },
+                "score_0_100": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "rank": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "pathway_code",
+                "pathway_name",
+                "raw_score",
+                "max_score",
+                "score_0_100",
+                "available",
+                "rank"
+              ]
+            }
+          }
+        },
+        "required": [
+          "attempt_id",
+          "status",
+          "message",
+          "primary",
+          "secondary",
+          "near_tie",
+          "scoring_version",
+          "answered_count",
+          "timed_out_count",
+          "scores"
+        ]
+      },
+      "PreferenceProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "student_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_current": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scoring_version": {
+            "type": "string"
+          },
+          "near_tie": {
+            "type": "boolean"
+          },
+          "dominant": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          },
+          "secondary": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "pathway_code": {
+                  "type": "string",
+                  "enum": [
+                    "LING",
+                    "LOGI",
+                    "SPAT",
+                    "MUSI",
+                    "BODY",
+                    "NATU"
+                  ]
+                },
+                "pathway_name": {
+                  "type": "string"
+                },
+                "raw_score": {
+                  "type": "number"
+                },
+                "max_score": {
+                  "type": "number"
+                },
+                "score_0_100": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "rank": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "pathway_code",
+                "pathway_name",
+                "raw_score",
+                "max_score",
+                "score_0_100",
+                "available",
+                "rank"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "student_id",
+          "attempt_id",
+          "is_current",
+          "created_at",
+          "scoring_version",
+          "near_tie",
+          "dominant",
+          "secondary",
+          "scores"
+        ]
+      },
+      "PreferenceProfileHistoryItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "student_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_current": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scoring_version": {
+            "type": "string"
+          },
+          "near_tie": {
+            "type": "boolean"
+          },
+          "dominant": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          },
+          "secondary": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "LING",
+                  "LOGI",
+                  "SPAT",
+                  "MUSI",
+                  "BODY",
+                  "NATU"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "score_0_100": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name",
+              "score_0_100"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "student_id",
+          "attempt_id",
+          "is_current",
+          "created_at",
+          "scoring_version",
+          "near_tie",
+          "dominant",
+          "secondary"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Create student account",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 50
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6
+                  },
+                  "grade": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "name",
+                  "username",
+                  "password",
+                  "grade"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "STUDENT",
+                            "ADMIN"
+                          ]
+                        },
+                        "grade": {
+                          "type": "integer",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "username",
+                        "role"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "issue": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "issue"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "issue": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "issue"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Student and Admin login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "STUDENT",
+                            "ADMIN"
+                          ]
+                        },
+                        "grade": {
+                          "type": "integer",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "username",
+                        "role"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "issue": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "issue"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Get current user identity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "STUDENT",
+                        "ADMIN"
+                      ]
+                    },
+                    "grade": {
+                      "type": "integer",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "username",
+                    "role"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "issue": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "issue"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-attempts": {
+      "post": {
+        "summary": "Start or resume an assessment attempt",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attempt started or resumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attempt_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "attempt_no": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "IN_PROGRESS",
+                        "SCORED",
+                        "INCOMPLETE"
+                      ]
+                    },
+                    "current_index": {
+                      "type": "integer"
+                    },
+                    "total_questions": {
+                      "type": "integer"
+                    },
+                    "started_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "assessment_remaining_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "attempt_id",
+                    "attempt_no",
+                    "status",
+                    "current_index",
+                    "total_questions",
+                    "started_at",
+                    "assessment_remaining_seconds"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Only students can start assessments"
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-attempts/{attempt_id}/current": {
+      "get": {
+        "summary": "Get safe current question and timers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "attempt_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current question",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attempt_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "question_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "SELF_REPORT",
+                        "SCENARIO"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "rating_scale": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      }
+                    },
+                    "time_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "question_remaining_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "assessment_remaining_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "attempt_id",
+                    "question_id",
+                    "index",
+                    "total",
+                    "type",
+                    "prompt",
+                    "options",
+                    "time_limit_seconds",
+                    "question_remaining_seconds",
+                    "assessment_remaining_seconds"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - not your attempt"
+          },
+          "404": {
+            "description": "Attempt or question not found"
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-attempts/{attempt_id}/responses": {
+      "post": {
+        "summary": "Submit answer for current question",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "attempt_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "question_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "answer": {
+                    "type": "object",
+                    "properties": {
+                      "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "option_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "question_id",
+                  "answer"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Answer recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "next_index": {
+                      "type": "integer"
+                    },
+                    "is_completed": {
+                      "type": "boolean"
+                    },
+                    "timed_out": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "next_index",
+                    "is_completed"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or wrong question"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Duplicate answer"
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-attempts/{attempt_id}/submit": {
+      "post": {
+        "summary": "Submit assessment and calculate profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "attempt_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment completed or marked incomplete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attempt_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "IN_PROGRESS",
+                        "SCORED",
+                        "INCOMPLETE"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "primary": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "LING",
+                            "LOGI",
+                            "SPAT",
+                            "MUSI",
+                            "BODY",
+                            "NATU"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "score_0_100": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "code",
+                        "name",
+                        "score_0_100"
+                      ]
+                    },
+                    "secondary": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "LING",
+                            "LOGI",
+                            "SPAT",
+                            "MUSI",
+                            "BODY",
+                            "NATU"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "score_0_100": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "code",
+                        "name",
+                        "score_0_100"
+                      ]
+                    },
+                    "near_tie": {
+                      "type": "boolean"
+                    },
+                    "scoring_version": {
+                      "type": "string"
+                    },
+                    "answered_count": {
+                      "type": "integer"
+                    },
+                    "timed_out_count": {
+                      "type": "integer"
+                    },
+                    "scores": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pathway_code": {
+                            "type": "string",
+                            "enum": [
+                              "LING",
+                              "LOGI",
+                              "SPAT",
+                              "MUSI",
+                              "BODY",
+                              "NATU"
+                            ]
+                          },
+                          "pathway_name": {
+                            "type": "string"
+                          },
+                          "raw_score": {
+                            "type": "number"
+                          },
+                          "max_score": {
+                            "type": "number"
+                          },
+                          "score_0_100": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "available": {
+                            "type": "boolean"
+                          },
+                          "rank": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "pathway_code",
+                          "pathway_name",
+                          "raw_score",
+                          "max_score",
+                          "score_0_100",
+                          "available",
+                          "rank"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "attempt_id",
+                    "status",
+                    "message",
+                    "primary",
+                    "secondary",
+                    "near_tie",
+                    "scoring_version",
+                    "answered_count",
+                    "timed_out_count",
+                    "scores"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unanswered questions remaining"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/students/me/preference-profile": {
+      "get": {
+        "summary": "Get current student preference profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current preference profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "student_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "attempt_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "is_current": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "scoring_version": {
+                      "type": "string"
+                    },
+                    "near_tie": {
+                      "type": "boolean"
+                    },
+                    "dominant": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "LING",
+                            "LOGI",
+                            "SPAT",
+                            "MUSI",
+                            "BODY",
+                            "NATU"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "score_0_100": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "code",
+                        "name",
+                        "score_0_100"
+                      ]
+                    },
+                    "secondary": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "LING",
+                            "LOGI",
+                            "SPAT",
+                            "MUSI",
+                            "BODY",
+                            "NATU"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "score_0_100": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "code",
+                        "name",
+                        "score_0_100"
+                      ]
+                    },
+                    "scores": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pathway_code": {
+                            "type": "string",
+                            "enum": [
+                              "LING",
+                              "LOGI",
+                              "SPAT",
+                              "MUSI",
+                              "BODY",
+                              "NATU"
+                            ]
+                          },
+                          "pathway_name": {
+                            "type": "string"
+                          },
+                          "raw_score": {
+                            "type": "number"
+                          },
+                          "max_score": {
+                            "type": "number"
+                          },
+                          "score_0_100": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "available": {
+                            "type": "boolean"
+                          },
+                          "rank": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "pathway_code",
+                          "pathway_name",
+                          "raw_score",
+                          "max_score",
+                          "score_0_100",
+                          "available",
+                          "rank"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "student_id",
+                    "attempt_id",
+                    "is_current",
+                    "created_at",
+                    "scoring_version",
+                    "near_tie",
+                    "dominant",
+                    "secondary",
+                    "scores"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found"
+          }
+        }
+      }
+    },
+    "/api/v1/students/me/preference-profiles": {
+      "get": {
+        "summary": "Get student preference profile history",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "student_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "attempt_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "is_current": {
+                        "type": "boolean"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "scoring_version": {
+                        "type": "string"
+                      },
+                      "near_tie": {
+                        "type": "boolean"
+                      },
+                      "dominant": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "LING",
+                              "LOGI",
+                              "SPAT",
+                              "MUSI",
+                              "BODY",
+                              "NATU"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "score_0_100": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "code",
+                          "name",
+                          "score_0_100"
+                        ]
+                      },
+                      "secondary": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "LING",
+                              "LOGI",
+                              "SPAT",
+                              "MUSI",
+                              "BODY",
+                              "NATU"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "score_0_100": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "code",
+                          "name",
+                          "score_0_100"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "student_id",
+                      "attempt_id",
+                      "is_current",
+                      "created_at",
+                      "scoring_version",
+                      "near_tie",
+                      "dominant",
+                      "secondary"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questions": {
+      "get": {
+        "summary": "List question versions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Question list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "SELF_REPORT",
+                          "SCENARIO"
+                        ]
+                      },
+                      "prompt": {
+                        "type": "string"
+                      },
+                      "grade_min": {
+                        "type": "integer",
+                        "minimum": 6,
+                        "maximum": 8
+                      },
+                      "grade_max": {
+                        "type": "integer",
+                        "minimum": 6,
+                        "maximum": 8
+                      },
+                      "weight": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 3
+                      },
+                      "time_limit_seconds": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "review_status": {
+                        "type": "string",
+                        "enum": [
+                          "DRAFT",
+                          "APPROVED",
+                          "REJECTED"
+                        ]
+                      },
+                      "reviewer_name": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "review_notes": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "reviewed_at": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date-time"
+                      },
+                      "is_active": {
+                        "type": "boolean"
+                      },
+                      "pathway_code": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                          "LING",
+                          "LOGI",
+                          "SPAT",
+                          "MUSI",
+                          "BODY",
+                          "NATU"
+                        ]
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "option_key": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "order_index": {
+                              "type": "integer"
+                            },
+                            "pathway_contributions": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "pathway_code": {
+                                    "type": "string",
+                                    "enum": [
+                                      "LING",
+                                      "LOGI",
+                                      "SPAT",
+                                      "MUSI",
+                                      "BODY",
+                                      "NATU"
+                                    ]
+                                  },
+                                  "contribution": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  }
+                                },
+                                "required": [
+                                  "pathway_code",
+                                  "contribution"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "option_key",
+                            "label",
+                            "order_index"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "key",
+                      "version",
+                      "type",
+                      "prompt",
+                      "grade_min",
+                      "grade_max",
+                      "weight",
+                      "time_limit_seconds",
+                      "review_status",
+                      "is_active",
+                      "options"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create draft question version",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "SELF_REPORT",
+                      "SCENARIO"
+                    ]
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "grade_min": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 8,
+                    "default": 6
+                  },
+                  "grade_max": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 8,
+                    "default": 8
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "default": 1
+                  },
+                  "time_limit_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "pathway_code": {
+                    "type": "string",
+                    "enum": [
+                      "LING",
+                      "LOGI",
+                      "SPAT",
+                      "MUSI",
+                      "BODY",
+                      "NATU"
+                    ]
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "option_key": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "order_index": {
+                          "type": "integer",
+                          "default": 0
+                        },
+                        "pathway_contributions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "pathway_code": {
+                                "type": "string",
+                                "enum": [
+                                  "LING",
+                                  "LOGI",
+                                  "SPAT",
+                                  "MUSI",
+                                  "BODY",
+                                  "NATU"
+                                ]
+                              },
+                              "contribution": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            },
+                            "required": [
+                              "pathway_code",
+                              "contribution"
+                            ]
+                          },
+                          "default": []
+                        }
+                      },
+                      "required": [
+                        "option_key",
+                        "label"
+                      ]
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "key",
+                  "type",
+                  "prompt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Question draft created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "SELF_REPORT",
+                        "SCENARIO"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "grade_min": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "grade_max": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 3
+                    },
+                    "time_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "review_status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED"
+                      ]
+                    },
+                    "reviewer_name": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "review_notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reviewed_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "pathway_code": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "LING",
+                        "LOGI",
+                        "SPAT",
+                        "MUSI",
+                        "BODY",
+                        "NATU"
+                      ]
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "option_key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "order_index": {
+                            "type": "integer"
+                          },
+                          "pathway_contributions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "pathway_code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "LING",
+                                    "LOGI",
+                                    "SPAT",
+                                    "MUSI",
+                                    "BODY",
+                                    "NATU"
+                                  ]
+                                },
+                                "contribution": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "pathway_code",
+                                "contribution"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "option_key",
+                          "label",
+                          "order_index"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "version",
+                    "type",
+                    "prompt",
+                    "grade_min",
+                    "grade_max",
+                    "weight",
+                    "time_limit_seconds",
+                    "review_status",
+                    "is_active",
+                    "options"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questions/{question_id}": {
+      "put": {
+        "summary": "Update question (creates a new version)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "question_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "grade_min": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 8
+                  },
+                  "grade_max": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 8
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 3
+                  },
+                  "time_limit_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "pathway_code": {
+                    "type": "string",
+                    "enum": [
+                      "LING",
+                      "LOGI",
+                      "SPAT",
+                      "MUSI",
+                      "BODY",
+                      "NATU"
+                    ]
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "option_key": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "order_index": {
+                          "type": "integer",
+                          "default": 0
+                        },
+                        "pathway_contributions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "pathway_code": {
+                                "type": "string",
+                                "enum": [
+                                  "LING",
+                                  "LOGI",
+                                  "SPAT",
+                                  "MUSI",
+                                  "BODY",
+                                  "NATU"
+                                ]
+                              },
+                              "contribution": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            },
+                            "required": [
+                              "pathway_code",
+                              "contribution"
+                            ]
+                          },
+                          "default": []
+                        }
+                      },
+                      "required": [
+                        "option_key",
+                        "label"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New question version created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "SELF_REPORT",
+                        "SCENARIO"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "grade_min": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "grade_max": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 3
+                    },
+                    "time_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "review_status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED"
+                      ]
+                    },
+                    "reviewer_name": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "review_notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reviewed_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "pathway_code": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "LING",
+                        "LOGI",
+                        "SPAT",
+                        "MUSI",
+                        "BODY",
+                        "NATU"
+                      ]
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "option_key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "order_index": {
+                            "type": "integer"
+                          },
+                          "pathway_contributions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "pathway_code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "LING",
+                                    "LOGI",
+                                    "SPAT",
+                                    "MUSI",
+                                    "BODY",
+                                    "NATU"
+                                  ]
+                                },
+                                "contribution": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "pathway_code",
+                                "contribution"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "option_key",
+                          "label",
+                          "order_index"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "version",
+                    "type",
+                    "prompt",
+                    "grade_min",
+                    "grade_max",
+                    "weight",
+                    "time_limit_seconds",
+                    "review_status",
+                    "is_active",
+                    "options"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deactivate question version",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "question_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Question deactivated"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questions/{question_id}/review": {
+      "post": {
+        "summary": "Record teacher review for a question version",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "question_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "review_status": {
+                    "type": "string",
+                    "enum": [
+                      "APPROVED",
+                      "REJECTED"
+                    ]
+                  },
+                  "reviewer_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "review_notes": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "review_status",
+                  "reviewer_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review decision recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "SELF_REPORT",
+                        "SCENARIO"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "grade_min": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "grade_max": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 3
+                    },
+                    "time_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "review_status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED"
+                      ]
+                    },
+                    "reviewer_name": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "review_notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reviewed_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "pathway_code": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "LING",
+                        "LOGI",
+                        "SPAT",
+                        "MUSI",
+                        "BODY",
+                        "NATU"
+                      ]
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "option_key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "order_index": {
+                            "type": "integer"
+                          },
+                          "pathway_contributions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "pathway_code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "LING",
+                                    "LOGI",
+                                    "SPAT",
+                                    "MUSI",
+                                    "BODY",
+                                    "NATU"
+                                  ]
+                                },
+                                "contribution": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "pathway_code",
+                                "contribution"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "option_key",
+                          "label",
+                          "order_index"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "version",
+                    "type",
+                    "prompt",
+                    "grade_min",
+                    "grade_max",
+                    "weight",
+                    "time_limit_seconds",
+                    "review_status",
+                    "is_active",
+                    "options"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questions/{question_id}/activate": {
+      "post": {
+        "summary": "Activate approved question version for future attempts",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "question_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Question activated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "SELF_REPORT",
+                        "SCENARIO"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "grade_min": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "grade_max": {
+                      "type": "integer",
+                      "minimum": 6,
+                      "maximum": 8
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 3
+                    },
+                    "time_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "review_status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED"
+                      ]
+                    },
+                    "reviewer_name": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "review_notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reviewed_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "pathway_code": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "LING",
+                        "LOGI",
+                        "SPAT",
+                        "MUSI",
+                        "BODY",
+                        "NATU"
+                      ]
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "option_key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "order_index": {
+                            "type": "integer"
+                          },
+                          "pathway_contributions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "pathway_code": {
+                                  "type": "string",
+                                  "enum": [
+                                    "LING",
+                                    "LOGI",
+                                    "SPAT",
+                                    "MUSI",
+                                    "BODY",
+                                    "NATU"
+                                  ]
+                                },
+                                "contribution": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              },
+                              "required": [
+                                "pathway_code",
+                                "contribution"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "option_key",
+                          "label",
+                          "order_index"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "version",
+                    "type",
+                    "prompt",
+                    "grade_min",
+                    "grade_max",
+                    "weight",
+                    "time_limit_seconds",
+                    "review_status",
+                    "is_active",
+                    "options"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/assessment-config": {
+      "get": {
+        "summary": "Get active assessment configuration",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active assessment configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "total_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "self_report_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "scenario_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "grace_period_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "min_answered_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "near_tie_margin": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "default_question_weight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "scoring_formula_version": {
+                      "type": "string"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "version",
+                    "total_limit_seconds",
+                    "self_report_limit_seconds",
+                    "scenario_limit_seconds",
+                    "grace_period_seconds",
+                    "min_answered_count",
+                    "near_tie_margin",
+                    "default_question_weight",
+                    "scoring_formula_version",
+                    "is_active"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update assessment configuration (versions config)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "total_limit_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "self_report_limit_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "scenario_limit_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "grace_period_seconds": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "min_answered_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "near_tie_margin": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "default_question_weight": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "scoring_formula_version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "total_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "self_report_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "scenario_limit_seconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "grace_period_seconds": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "min_answered_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "near_tie_margin": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "default_question_weight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "scoring_formula_version": {
+                      "type": "string"
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "version",
+                    "total_limit_seconds",
+                    "self_report_limit_seconds",
+                    "scenario_limit_seconds",
+                    "grace_period_seconds",
+                    "min_answered_count",
+                    "near_tie_margin",
+                    "default_question_weight",
+                    "scoring_formula_version",
+                    "is_active"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
