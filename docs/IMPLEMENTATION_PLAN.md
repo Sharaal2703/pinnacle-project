@@ -16,7 +16,7 @@ Use `PRE_ASSESSMENT_CONTRACT.md` as the binding API, data, scoring, security, an
 
 ### 2. Identity and question bank
 
-**Developer 1:** implement student registration/login/current-user, password hashing, token middleware, role/ownership checks, pathway seed rows, versioned question/config models, and admin CRUD APIs. Seed fixtures for development only.
+**Developer 1:** implement student registration/login/current-user, password hashing, token middleware, role/ownership checks, pathway seed rows, versioned question/config models, and admin CRUD APIs. Explicit seeding imports question content as drafts only; it never creates accounts, approves content from file metadata, or runs on API startup.
 
 **Developer 2:** implement registration/login screens, assessment instructions, and admin question/config screens against the agreed API types. Read actual questionnaire wording from reviewed files in `docs/questionnaires/`; do not write final prompts independently.
 

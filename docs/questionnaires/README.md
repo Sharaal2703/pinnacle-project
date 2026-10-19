@@ -20,8 +20,8 @@ Each item contains a stable `key`, `type` (`SELF_REPORT` or `SCENARIO`), `prompt
 - For `SELF_REPORT`: `pathway_code` and the fixed rating scale `[1, 2, 3, 4, 5]`.
 - For `SCENARIO`: `options`, each with a stable `key`, student-visible `label`, and `pathway_contributions` list of `{ "pathway_code", "contribution" }` values from 0 to 1.
 
-The questionnaire-level `review` records `status` (`DRAFT` or `APPROVED`), reviewer name, review date, and notes. Only `APPROVED` files can be loaded into the active question bank. The admin must record the teacher's review decision in the application when activating the bank.
+The questionnaire-level `review` metadata is informational only. Importing a file always creates new question versions as `DRAFT` and inactive, regardless of its declared review status. An authorized administrator must record the external teacher review in the application and activate the approved version. Do not put a reviewer name/date in the file until a real review has occurred.
 
-The initial bank contains six self-report items (one per supported pathway) and twelve scenario items. Keep scenario option coverage balanced across all six pathways. The final prompts and mappings are pending teacher review and the user's questionnaire update; do not fill this folder with invented student-facing items.
+The intended bank shape is six self-report items (one per supported pathway) and twelve scenario items. Keep scenario option coverage balanced across all six pathways. The prompts currently in the sample JSON remain draft fixtures; they are not cleared for student use. Replace or confirm them with the user and an authorized teacher before recording approval in the application.
 
 Use original, age-appropriate wording. Do not copy textbook passages or external questionnaire wording. Preference questions need not quote curriculum content. Never store student answers, student names, or other personal data here.

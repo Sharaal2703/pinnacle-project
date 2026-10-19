@@ -9,7 +9,6 @@ import { ConfigService } from './config.service';
 import { TimerService } from './timer.service';
 import { ScoringEngine, QuestionScoringItem, AnswerResponseItem } from './scoring.service';
 import { ProfileService } from './profile.service';
-import { SeedService } from './seed.service';
 import {
   StartAttemptResponse,
   SafeQuestionResponse,
@@ -24,8 +23,6 @@ export class AttemptService {
    * Starts a new attempt or resumes an existing active in-progress attempt.
    */
   static async startOrResumeAttempt(studentId: string): Promise<StartAttemptResponse> {
-    const config = await ConfigService.getActiveConfig();
-
     // Check for existing IN_PROGRESS attempt
     const activeAttempt = await prisma.assessmentAttempt.findFirst({
       where: {
@@ -36,6 +33,7 @@ export class AttemptService {
     });
 
     if (activeAttempt) {
+      const config = await ConfigService.getByVersion(activeAttempt.scoringConfigVersion);
       // Check if total assessment time has expired
       const isTotalTimedOut = TimerService.isAssessmentTimedOut(
         activeAttempt.startedAt,
@@ -60,13 +58,12 @@ export class AttemptService {
           assessment_remaining_seconds: remainingSec
         };
       } else {
-        // Finalize expired attempt as INCOMPLETE and let student start a new one
-        await prisma.assessmentAttempt.update({
-          where: { id: activeAttempt.id },
-          data: { status: 'INCOMPLETE', submittedAt: new Date() }
-        });
+        // Persist unanswered items as timeouts and score the expired attempt before a retake.
+        await this.submitAttempt(activeAttempt.id, studentId);
       }
     }
+
+    const config = await ConfigService.getActiveConfig();
 
     // Fetch approved active questions to construct the attempt's fixed order
     let selfReportQuestions = await prisma.questionVersion.findMany({
@@ -78,21 +75,6 @@ export class AttemptService {
       where: { isActive: true, reviewStatus: 'APPROVED', type: 'SCENARIO' },
       orderBy: { key: 'asc' }
     });
-
-    if (selfReportQuestions.length < 6 || scenarioQuestions.length < 12) {
-      console.log('Assessment bank has fewer than 6 self-report or 12 scenario questions. Auto-seeding question bank...');
-      await SeedService.seedAll();
-
-      selfReportQuestions = await prisma.questionVersion.findMany({
-        where: { isActive: true, reviewStatus: 'APPROVED', type: 'SELF_REPORT' },
-        orderBy: { key: 'asc' }
-      });
-
-      scenarioQuestions = await prisma.questionVersion.findMany({
-        where: { isActive: true, reviewStatus: 'APPROVED', type: 'SCENARIO' },
-        orderBy: { key: 'asc' }
-      });
-    }
 
     if (selfReportQuestions.length < 6 || scenarioQuestions.length < 12) {
       throw new ValidationError(
@@ -156,7 +138,10 @@ export class AttemptService {
       throw new ValidationError(`Assessment attempt is already ${attempt.status}`);
     }
 
-    const config = await ConfigService.getActiveConfig();
+    const config = await ConfigService.getByVersion(attempt.scoringConfigVersion);
+    if (TimerService.isAssessmentTimedOut(attempt.startedAt, config.totalLimitSec, config.gracePeriodSec)) {
+      throw new ConflictError('Assessment time has expired; submit to finalize the attempt.');
+    }
     const questionIds = attempt.questionOrder as string[];
     const index = attempt.currentIndex;
 
@@ -239,145 +224,117 @@ export class AttemptService {
     studentId: string,
     data: SubmitAnswerRequest
   ): Promise<SubmitAnswerResponse> {
-    const attempt = await prisma.assessmentAttempt.findUnique({
-      where: { id: attemptId }
-    });
-
-    if (!attempt) throw new NotFoundError('Assessment attempt not found');
-    if (attempt.studentId !== studentId) throw new ForbiddenError('Unauthorized attempt access');
-    if (attempt.status !== 'IN_PROGRESS') throw new ValidationError(`Attempt is already ${attempt.status}`);
-
-    const questionIds = attempt.questionOrder as string[];
-    const expectedQuestionId = questionIds[attempt.currentIndex - 1];
-
-    if (data.question_id !== expectedQuestionId) {
-      throw new ValidationError(
-        `Answer submitted for question ${data.question_id}, but current question is ${expectedQuestionId}`,
-        [{ field: 'question_id', issue: 'out_of_order' }]
-      );
-    }
+    const initialAttempt = await prisma.assessmentAttempt.findUnique({ where: { id: attemptId } });
+    if (!initialAttempt) throw new NotFoundError('Assessment attempt not found');
+    if (initialAttempt.studentId !== studentId) throw new ForbiddenError('Unauthorized attempt access');
 
     const question = await prisma.questionVersion.findUnique({
       where: { id: data.question_id },
-      include: {
-        pathway: true,
-        options: {
-          include: { pathwayMappings: true }
-        }
-      }
+      include: { pathway: true, options: { include: { pathwayMappings: true } } }
     });
-
     if (!question) throw new NotFoundError('Question not found');
 
-    const config = await ConfigService.getActiveConfig();
+    const config = await ConfigService.getByVersion(initialAttempt.scoringConfigVersion);
     const now = new Date();
 
-    let responseRecord = await prisma.assessmentResponse.findUnique({
-      where: {
-        attemptId_questionVersionId: {
-          attemptId: attempt.id,
-          questionVersionId: question.id
-        }
-      }
-    });
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const attempt = await tx.assessmentAttempt.findUnique({ where: { id: attemptId } });
+        if (!attempt || attempt.studentId !== studentId) throw new ForbiddenError('Unauthorized attempt access');
+        if (attempt.status !== 'IN_PROGRESS') throw new ConflictError(`Attempt is already ${attempt.status}.`);
 
-    if (responseRecord && responseRecord.answeredAt) {
-      throw new ConflictError('An answer has already been saved for this question.');
+        const questionIds = attempt.questionOrder as string[];
+        const expectedQuestionId = questionIds[attempt.currentIndex - 1];
+        if (data.question_id !== expectedQuestionId) {
+          throw new ConflictError('The submitted question is stale or out of order.');
+        }
+
+        const responseRecord = await tx.assessmentResponse.findUnique({
+          where: {
+            attemptId_questionVersionId: {
+              attemptId: attempt.id,
+              questionVersionId: question.id
+            }
+          }
+        });
+        if (responseRecord?.answeredAt) {
+          throw new ConflictError('An answer has already been saved for this question.');
+        }
+
+        const shownAt = responseRecord?.shownAt ?? now;
+        const timeTakenMs = TimerService.calculateElapsedMs(shownAt, now);
+        const effectiveTimedOut = TimerService.isQuestionTimedOut(
+          shownAt, question.timeLimitSec, config.gracePeriodSec, now
+        ) || TimerService.isAssessmentTimedOut(
+          attempt.startedAt, config.totalLimitSec, config.gracePeriodSec, now
+        );
+
+        let responseWeight = 0;
+        let optionId: string | null = null;
+        if (!effectiveTimedOut && question.type === 'SELF_REPORT') {
+          const rating = data.answer.rating;
+          if (rating === undefined || rating < 1 || rating > 5) {
+            throw new ValidationError('Self-report question requires rating between 1 and 5.', [
+              { field: 'answer.rating', issue: 'invalid_rating' }
+            ]);
+          }
+          responseWeight = ScoringEngine.evaluateSelfReport(rating);
+        } else if (!effectiveTimedOut && question.type === 'SCENARIO') {
+          const selectedOptionId = data.answer.option_id;
+          const selectedOption = question.options.find((option) => option.id === selectedOptionId);
+          if (!selectedOption) {
+            throw new ValidationError('Selected option_id does not belong to this question.', [
+              { field: 'answer.option_id', issue: 'invalid_option' }
+            ]);
+          }
+          optionId = selectedOption.id;
+          responseWeight = 1.0;
+        }
+
+        const responseData = {
+          optionId,
+          answerJson: data.answer as any,
+          answeredAt: now,
+          timeTakenMs,
+          timedOut: effectiveTimedOut,
+          responseWeight
+        };
+        if (responseRecord) {
+          const saved = await tx.assessmentResponse.updateMany({
+            where: { id: responseRecord.id, answeredAt: null },
+            data: responseData
+          });
+          if (saved.count !== 1) throw new ConflictError('An answer has already been saved for this question.');
+        } else {
+          await tx.assessmentResponse.create({
+            data: {
+              attemptId: attempt.id,
+              questionVersionId: question.id,
+              shownAt,
+              ...responseData
+            }
+          });
+        }
+
+        const isLastQuestion = attempt.currentIndex >= questionIds.length;
+        const nextIndex = isLastQuestion ? attempt.currentIndex : attempt.currentIndex + 1;
+        const advanced = await tx.assessmentAttempt.updateMany({
+          where: { id: attempt.id, status: 'IN_PROGRESS', currentIndex: attempt.currentIndex },
+          data: { currentIndex: nextIndex }
+        });
+        if (advanced.count !== 1) throw new ConflictError('The attempt has advanced; reload the current question.');
+
+        return {
+          message: effectiveTimedOut ? 'Question response timed out.' : 'Response saved successfully.',
+          next_index: nextIndex,
+          is_completed: isLastQuestion,
+          timed_out: effectiveTimedOut
+        };
+      });
+    } catch (error: any) {
+      if (error?.code === 'P2002') throw new ConflictError('An answer has already been saved for this question.');
+      throw error;
     }
-
-    const shownAt = responseRecord?.shownAt ?? now;
-    const timeTakenMs = TimerService.calculateElapsedMs(shownAt, now);
-
-    const isQuestionTimedOut = TimerService.isQuestionTimedOut(
-      shownAt,
-      question.timeLimitSec,
-      config.gracePeriodSec,
-      now
-    );
-
-    const isAssessmentTimedOut = TimerService.isAssessmentTimedOut(
-      attempt.startedAt,
-      config.totalLimitSec,
-      config.gracePeriodSec,
-      now
-    );
-
-    const effectiveTimedOut = isQuestionTimedOut || isAssessmentTimedOut;
-
-    let responseWeight = 0;
-    let optionId: string | null = null;
-
-    if (!effectiveTimedOut) {
-      if (question.type === 'SELF_REPORT') {
-        const rating = data.answer.rating;
-        if (rating === undefined || rating < 1 || rating > 5) {
-          throw new ValidationError('Self-report question requires rating between 1 and 5.', [
-            { field: 'answer.rating', issue: 'invalid_rating' }
-          ]);
-        }
-        responseWeight = ScoringEngine.evaluateSelfReport(rating);
-      } else if (question.type === 'SCENARIO') {
-        const selectedOptId = data.answer.option_id;
-        if (!selectedOptId) {
-          throw new ValidationError('Scenario question requires selected option_id.', [
-            { field: 'answer.option_id', issue: 'missing_option' }
-          ]);
-        }
-        const opt = question.options.find((o) => o.id === selectedOptId);
-        if (!opt) {
-          throw new ValidationError('Selected option_id does not belong to this question.', [
-            { field: 'answer.option_id', issue: 'invalid_option' }
-          ]);
-        }
-        optionId = opt.id;
-        // The weight contribution is preserved; default 1.0 for mapped option
-        responseWeight = 1.0;
-      }
-    }
-
-    // Upsert response record
-    await prisma.assessmentResponse.upsert({
-      where: {
-        attemptId_questionVersionId: {
-          attemptId: attempt.id,
-          questionVersionId: question.id
-        }
-      },
-      update: {
-        optionId,
-        answerJson: data.answer as any,
-        answeredAt: now,
-        timeTakenMs,
-        timedOut: effectiveTimedOut,
-        responseWeight
-      },
-      create: {
-        attemptId: attempt.id,
-        questionVersionId: question.id,
-        shownAt,
-        optionId,
-        answerJson: data.answer as any,
-        answeredAt: now,
-        timeTakenMs,
-        timedOut: effectiveTimedOut,
-        responseWeight
-      }
-    });
-
-    const isLastQuestion = attempt.currentIndex >= questionIds.length;
-    const nextIndex = isLastQuestion ? attempt.currentIndex : attempt.currentIndex + 1;
-
-    await prisma.assessmentAttempt.update({
-      where: { id: attempt.id },
-      data: { currentIndex: nextIndex }
-    });
-
-    return {
-      message: effectiveTimedOut ? 'Question response timed out.' : 'Response saved successfully.',
-      next_index: nextIndex,
-      is_completed: isLastQuestion,
-      timed_out: effectiveTimedOut
-    };
   }
 
   /**
@@ -394,7 +351,10 @@ export class AttemptService {
     if (!attempt) throw new NotFoundError('Assessment attempt not found');
     if (attempt.studentId !== studentId) throw new ForbiddenError('Unauthorized attempt access');
 
-    const config = await ConfigService.getActiveConfig();
+    if (attempt.status !== 'IN_PROGRESS') {
+      throw new ConflictError(`Attempt is already ${attempt.status}.`);
+    }
+    const config = await ConfigService.getByVersion(attempt.scoringConfigVersion);
     const questionIds = attempt.questionOrder as string[];
     const now = new Date();
 

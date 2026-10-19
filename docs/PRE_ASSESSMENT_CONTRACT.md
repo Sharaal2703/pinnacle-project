@@ -19,7 +19,7 @@
 
 Curriculum browsing/resources, baseline/post academic quizzes, learning gain/mastery/adaptation, class/teacher reports, parent access, teacher/parent observations, Interpersonal/Intrapersonal pathways, and objective task questions. Do not create their routes, tables, or UI in this phase unless a shared foundation strictly needs a placeholder.
 
-Question prompts and final scenario mappings must come from reviewed questionnaire files in `docs/questionnaires/`. Use one JSON file per questionnaire version/language, as specified in that folder's README. Developers build the data model and rendering from the contract; they must not invent final student-facing questionnaire content. The six pathway self-report items and twelve scenarios are the initial bank shape, not proof that the instrument is validated.
+Question prompts and final scenario mappings must come from reviewed questionnaire files in `docs/questionnaires/`. Use one JSON file per questionnaire version/language, as specified in that folder's README. Developers build the data model and rendering from the contract; they must not invent final student-facing questionnaire content. The importer creates draft/inactive versions regardless of file review metadata; an authorized admin must record the actual external review and activate the version in the app. The six pathway self-report items and twelve scenarios are the initial bank shape, not proof that the instrument is validated.
 
 ## 2. Stack and code ownership
 
@@ -127,10 +127,10 @@ Return `400` for invalid input/state, `401` for missing/expired token, `403` for
 
 ### Timing and attempt state
 
-- Total limit: 25 minutes from `started_at`; self-report limit: 60 seconds; scenario limit: 90 seconds; server-side grace: 2 seconds. Store all as versioned configuration.
+- Total limit: 25 minutes from `started_at`; self-report limit: 60 seconds; scenario limit: 90 seconds; server-side grace: 2 seconds. Store all as versioned configuration. An attempt uses the immutable config version captured when it starts, including for timeout and scoring decisions.
 - Time continues during refresh, tab close, or network loss. The client timer is display only. Server timestamps decide whether a response is on time.
 - A question's first display sets `shown_at`. Returning to the current question preserves it. After per-question limit plus grace, persist a timeout with zero contribution and advance.
-- The student cannot skip ahead or submit early with unanswered items. When a request arrives after the total deadline, persist remaining items as timed out and finalize the attempt. No background timer worker is required.
+- The student cannot skip ahead or submit early with unanswered items. When a request arrives after the total deadline, persist remaining items as timed out and finalize the attempt, issuing a profile when the minimum answered threshold is met. Starting a retake first finalizes an expired in-progress attempt. No background timer worker is required.
 - At least 15 non-timeout answers are required to issue a profile. Below threshold, mark `INCOMPLETE`, save the attempt/responses, return a retake prompt, and do not create a current profile.
 - Retaking always creates a new attempt. The latest successfully scored profile becomes current; earlier profiles remain readable as history.
 
@@ -146,6 +146,7 @@ Return `400` for invalid input/state, `401` for missing/expired token, `403` for
 ## 6. Security, privacy, and UI rules
 
 - Hash passwords with bcrypt; validate all inputs server-side; use parameterized database access through Prisma.
+- API startup never provisions users. Use the explicit one-time admin provisioning command; never use a shared or hard-coded admin password outside local development.
 - Student endpoints derive student identity from the authenticated user; never trust a student ID supplied by the browser for self-service routes.
 - Keep the access token in frontend memory, not local storage. Require HTTPS outside local development.
 - Do not use real student data until school approval, consent, retention, deletion, and backup rules are established. Use fictional seed accounts and responses.

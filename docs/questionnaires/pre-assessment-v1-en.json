@@ -5,10 +5,10 @@
   "grade_min": 6,
   "grade_max": 8,
   "review": {
-    "status": "APPROVED",
-    "reviewer_name": "Middle School Curriculum Review Panel",
-    "review_date": "2026-10-14T00:00:00Z",
-    "notes": "Reviewed and verified against VARK and Multiple Intelligences questionnaire sources with balanced 6-pathway coverage."
+    "status": "DRAFT",
+    "reviewer_name": null,
+    "review_date": null,
+    "notes": "Pending review by an authorized teacher. File metadata does not authorize publication."
   },
   "items": [
     {

@@ -1,21 +1,36 @@
 import fs from 'fs';
 import path from 'path';
-import bcrypt from 'bcryptjs';
+import { QuestionType, PathwayCode } from '@prisma/client';
 import { prisma } from '../utils/prisma';
 import { ConfigService } from './config.service';
 
-export class SeedService {
-  static async seedAll(): Promise<void> {
-    console.log('Seeding pathways...');
-    await this.seedPathways();
+type QuestionnaireItem = {
+  key: string;
+  type: QuestionType;
+  prompt: string;
+  weight?: number;
+  time_limit_seconds?: number;
+  pathway_code?: PathwayCode;
+  options?: Array<{
+    key: string;
+    label: string;
+    pathway_contributions?: Array<{ pathway_code: PathwayCode; contribution: number }>;
+  }>;
+};
 
-    console.log('Seeding assessment configuration...');
+type QuestionnaireFile = {
+  version?: string;
+  grade_min?: number;
+  grade_max?: number;
+  items: QuestionnaireItem[];
+};
+
+export class SeedService {
+  /** Seed only static reference/config data and draft questionnaire content. */
+  static async seedAll(): Promise<void> {
+    await this.seedPathways();
     await ConfigService.getActiveConfig();
 
-    console.log('Seeding demo users...');
-    await this.seedDemoUsers();
-
-    console.log('Seeding questionnaire from docs/questionnaires/pre-assessment-v1-en.json...');
     const candidatePaths = [
       path.resolve(__dirname, '../../../docs/questionnaires/pre-assessment-v1-en.json'),
       path.resolve(__dirname, '../../docs/questionnaires/pre-assessment-v1-en.json'),
@@ -23,20 +38,18 @@ export class SeedService {
       path.resolve(process.cwd(), 'docs/questionnaires/pre-assessment-v1-en.json'),
       path.resolve(process.cwd(), '../docs/questionnaires/pre-assessment-v1-en.json')
     ];
-    const questionnairePath = candidatePaths.find((p) => fs.existsSync(p));
+    const questionnairePath = candidatePaths.find((candidate) => fs.existsSync(candidate));
 
-    if (questionnairePath) {
-      console.log(`Found questionnaire file at: ${questionnairePath}`);
-      await this.loadQuestionnaireFile(questionnairePath);
-    } else {
-      console.warn(`Questionnaire file not found in candidate paths:`, candidatePaths);
+    if (!questionnairePath) {
+      console.warn('Questionnaire file not found; no question content was imported.');
+      return;
     }
 
-    console.log('Seeding completed successfully!');
+    await this.loadQuestionnaireFile(questionnairePath);
   }
 
   static async seedPathways(): Promise<void> {
-    const pathways = [
+    const pathways: Array<{ code: PathwayCode; name: string }> = [
       { code: 'LING', name: 'Linguistic' },
       { code: 'LOGI', name: 'Logical-Mathematical' },
       { code: 'SPAT', name: 'Spatial/Visual' },
@@ -45,155 +58,87 @@ export class SeedService {
       { code: 'NATU', name: 'Naturalistic' }
     ];
 
-    for (const p of pathways) {
+    for (const pathway of pathways) {
       await prisma.pathway.upsert({
-        where: { code: p.code as any },
-        update: { name: p.name },
-        create: { code: p.code as any, name: p.name }
+        where: { code: pathway.code },
+        update: { name: pathway.name },
+        create: pathway
       });
     }
   }
 
-  static async seedDemoUsers(): Promise<void> {
-    const salt = await bcrypt.genSalt(10);
-    const adminPasswordHash = await bcrypt.hash('AdminPass123!', salt);
-    const studentPasswordHash = await bcrypt.hash('StudentPass123!', salt);
-
-    // Seed Demo Admin
-    await prisma.user.upsert({
-      where: { username: 'admin' },
-      update: { role: 'ADMIN', isActive: true },
-      create: {
-        name: 'Administrator',
-        username: 'admin',
-        passwordHash: adminPasswordHash,
-        role: 'ADMIN',
-        isActive: true
-      }
-    });
-
-    // Seed Demo Student
-    const studentUser = await prisma.user.upsert({
-      where: { username: 'student1' },
-      update: { role: 'STUDENT', isActive: true },
-      create: {
-        name: 'Alex Student',
-        username: 'student1',
-        passwordHash: studentPasswordHash,
-        role: 'STUDENT',
-        isActive: true
-      }
-    });
-
-    await prisma.student.upsert({
-      where: { userId: studentUser.id },
-      update: { grade: 7 },
-      create: {
-        userId: studentUser.id,
-        grade: 7
-      }
-    });
-  }
-
+  /**
+   * Imports new items as DRAFT/inactive regardless of review fields in the JSON.
+   * Existing versions are immutable and are left for the in-app review workflow.
+   */
   static async loadQuestionnaireFile(filePath: string): Promise<void> {
-    const rawData = fs.readFileSync(filePath, 'utf-8');
-    const data = JSON.parse(rawData);
-
-    if (data.review?.status !== 'APPROVED') {
-      console.warn('Skipping unapproved questionnaire file:', filePath);
-      return;
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as QuestionnaireFile;
+    if (!Array.isArray(data.items)) {
+      throw new Error(`Questionnaire file must contain an items array: ${filePath}`);
     }
 
     const pathways = await prisma.pathway.findMany();
-    const pathwayMap = new Map(pathways.map((p) => [p.code, p]));
+    const pathwayMap = new Map(pathways.map((pathway) => [pathway.code, pathway]));
+    const parsedVersion = Number.parseInt(data.version?.split('.')[0] ?? '1', 10);
+    const version = Number.isInteger(parsedVersion) && parsedVersion > 0 ? parsedVersion : 1;
 
     for (const item of data.items) {
-      let pathwayId: string | undefined = undefined;
-      if (item.pathway_code) {
-        pathwayId = pathwayMap.get(item.pathway_code)?.id;
+      const existing = await prisma.questionVersion.findUnique({
+        where: { key_version: { key: item.key, version } }
+      });
+      if (existing) continue;
+
+      const pathway = item.pathway_code ? pathwayMap.get(item.pathway_code) : undefined;
+      if (item.pathway_code && !pathway) {
+        throw new Error(`Unknown pathway ${item.pathway_code} in ${item.key}`);
       }
 
-      const q = await prisma.questionVersion.upsert({
-        where: {
-          key_version: {
+      await prisma.$transaction(async (tx) => {
+        const question = await tx.questionVersion.create({
+          data: {
             key: item.key,
-            version: 1
+            version,
+            type: item.type,
+            prompt: item.prompt,
+            gradeMin: data.grade_min ?? 6,
+            gradeMax: data.grade_max ?? 8,
+            weight: item.weight ?? 1.0,
+            timeLimitSec: item.time_limit_seconds ?? (item.type === 'SELF_REPORT' ? 60 : 90),
+            reviewStatus: 'DRAFT',
+            reviewerName: null,
+            reviewNotes: null,
+            reviewedAt: null,
+            isActive: false,
+            pathwayId: pathway?.id
           }
-        },
-        update: {
-          prompt: item.prompt,
-          weight: item.weight ?? 1.0,
-          timeLimitSec: item.time_limit_seconds ?? (item.type === 'SELF_REPORT' ? 60 : 90),
-          reviewStatus: 'APPROVED',
-          reviewerName: data.review.reviewer_name,
-          reviewNotes: data.review.notes,
-          reviewedAt: new Date(data.review.review_date || Date.now()),
-          isActive: true,
-          pathwayId
-        },
-        create: {
-          key: item.key,
-          version: 1,
-          type: item.type,
-          prompt: item.prompt,
-          gradeMin: data.grade_min ?? 6,
-          gradeMax: data.grade_max ?? 8,
-          weight: item.weight ?? 1.0,
-          timeLimitSec: item.time_limit_seconds ?? (item.type === 'SELF_REPORT' ? 60 : 90),
-          reviewStatus: 'APPROVED',
-          reviewerName: data.review.reviewer_name,
-          reviewNotes: data.review.notes,
-          reviewedAt: new Date(data.review.review_date || Date.now()),
-          isActive: true,
-          pathwayId
-        }
-      });
+        });
 
-      if (item.options && item.options.length > 0) {
-        for (let i = 0; i < item.options.length; i++) {
-          const opt = item.options[i];
-          const createdOpt = await prisma.questionOption.upsert({
-            where: {
-              questionVersionId_optionKey: {
-                questionVersionId: q.id,
-                optionKey: opt.key
-              }
-            },
-            update: {
-              label: opt.label,
-              orderIndex: i
-            },
-            create: {
-              questionVersionId: q.id,
-              optionKey: opt.key,
-              label: opt.label,
-              orderIndex: i
+        for (let index = 0; index < (item.options ?? []).length; index++) {
+          const option = item.options![index];
+          const createdOption = await tx.questionOption.create({
+            data: {
+              questionVersionId: question.id,
+              optionKey: option.key,
+              label: option.label,
+              orderIndex: index
             }
           });
 
-          for (const mapping of opt.pathway_contributions || []) {
-            const pw = pathwayMap.get(mapping.pathway_code);
-            if (pw) {
-              await prisma.questionOptionMapping.upsert({
-                where: {
-                  optionId_pathwayId: {
-                    optionId: createdOpt.id,
-                    pathwayId: pw.id
-                  }
-                },
-                update: {
-                  contribution: mapping.contribution
-                },
-                create: {
-                  optionId: createdOpt.id,
-                  pathwayId: pw.id,
-                  contribution: mapping.contribution
-                }
-              });
+          for (const mapping of option.pathway_contributions ?? []) {
+            const mappedPathway = pathwayMap.get(mapping.pathway_code);
+            if (!mappedPathway) {
+              throw new Error(`Unknown pathway ${mapping.pathway_code} in ${item.key}`);
             }
+            await tx.questionOptionMapping.create({
+              data: {
+                optionId: createdOption.id,
+                pathwayId: mappedPathway.id,
+                contribution: mapping.contribution
+              }
+            });
           }
         }
-      }
+      });
     }
   }
 }

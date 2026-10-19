@@ -1,5 +1,6 @@
 import { prisma } from '../utils/prisma';
 import { AssessmentConfig } from '@prisma/client';
+import { ConflictError, NotFoundError } from '../middleware/error.middleware';
 
 export class ConfigService {
   private static DEFAULT_CONFIG = {
@@ -31,6 +32,14 @@ export class ConfigService {
     });
   }
 
+  static async getByVersion(version: string): Promise<AssessmentConfig> {
+    const config = await prisma.assessmentConfig.findUnique({ where: { version } });
+    if (!config) {
+      throw new NotFoundError(`Assessment configuration ${version} was not found.`, 'CONFIG_NOT_FOUND');
+    }
+    return config;
+  }
+
   static async updateConfig(
     version: string,
     updates: Partial<{
@@ -44,27 +53,31 @@ export class ConfigService {
       scoringFormulaVersion: string;
     }>
   ): Promise<AssessmentConfig> {
-    // Deactivate previous active configurations
-    await prisma.assessmentConfig.updateMany({
-      where: { isActive: true },
-      data: { isActive: false }
-    });
-
     const active = await this.getActiveConfig();
+    if (version === active.version || await prisma.assessmentConfig.findUnique({ where: { version } })) {
+      throw new ConflictError(`Assessment configuration version '${version}' already exists.`);
+    }
 
-    return prisma.assessmentConfig.create({
-      data: {
-        version,
-        totalLimitSec: updates.totalLimitSec ?? active.totalLimitSec,
-        selfReportLimitSec: updates.selfReportLimitSec ?? active.selfReportLimitSec,
-        scenarioLimitSec: updates.scenarioLimitSec ?? active.scenarioLimitSec,
-        gracePeriodSec: updates.gracePeriodSec ?? active.gracePeriodSec,
-        minAnsweredCount: updates.minAnsweredCount ?? active.minAnsweredCount,
-        nearTieMargin: updates.nearTieMargin ?? Number(active.nearTieMargin),
-        defaultQuestionWeight: updates.defaultQuestionWeight ?? Number(active.defaultQuestionWeight),
-        scoringFormulaVersion: updates.scoringFormulaVersion ?? active.scoringFormulaVersion,
-        isActive: true
-      }
+    return prisma.$transaction(async (tx) => {
+      await tx.assessmentConfig.updateMany({
+        where: { isActive: true },
+        data: { isActive: false }
+      });
+
+      return tx.assessmentConfig.create({
+        data: {
+          version,
+          totalLimitSec: updates.totalLimitSec ?? active.totalLimitSec,
+          selfReportLimitSec: updates.selfReportLimitSec ?? active.selfReportLimitSec,
+          scenarioLimitSec: updates.scenarioLimitSec ?? active.scenarioLimitSec,
+          gracePeriodSec: updates.gracePeriodSec ?? active.gracePeriodSec,
+          minAnsweredCount: updates.minAnsweredCount ?? active.minAnsweredCount,
+          nearTieMargin: updates.nearTieMargin ?? Number(active.nearTieMargin),
+          defaultQuestionWeight: updates.defaultQuestionWeight ?? Number(active.defaultQuestionWeight),
+          scoringFormulaVersion: updates.scoringFormulaVersion ?? active.scoringFormulaVersion,
+          isActive: true
+        }
+      });
     });
   }
 }
