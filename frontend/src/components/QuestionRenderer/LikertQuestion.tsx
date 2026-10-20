@@ -9,7 +9,7 @@ interface LikertQuestionProps {
 
 const SCALE_LABELS: Record<number, { emoji: string; label: string }> = {
   1: { emoji: '🙁', label: 'Strongly Disagree' },
-  2: { emoji: '🙁', label: 'Disagree' },
+  2: { emoji: '😕', label: 'Disagree' },
   3: { emoji: '😐', label: 'Neutral / Sometimes' },
   4: { emoji: '🙂', label: 'Agree' },
   5: { emoji: '🤩', label: 'Strongly Agree' }

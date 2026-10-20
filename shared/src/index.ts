@@ -6,5 +6,6 @@ export * from './schemas/questions';
 export * from './schemas/config';
 export * from './schemas/attempts';
 export * from './schemas/profiles';
+export * from './schemas/assessment-access';
 export * from './openapi/spec';
 export * from './openapi/registry';

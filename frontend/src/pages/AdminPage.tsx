@@ -50,7 +50,6 @@ export const AdminPage: React.FC = () => {
   const [scenarioLimit, setScenarioLimit] = useState(90);
   const [gracePeriod, setGracePeriod] = useState(2);
   const [minAnswered, setMinAnswered] = useState(15);
-  const [nearTieMargin, setNearTieMargin] = useState(5.0);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
 
   useEffect(() => {
@@ -82,7 +81,6 @@ export const AdminPage: React.FC = () => {
       setScenarioLimit(cfg.scenario_limit_seconds);
       setGracePeriod(cfg.grace_period_seconds);
       setMinAnswered(cfg.min_answered_count);
-      setNearTieMargin(cfg.near_tie_margin);
     } catch (err: any) {
       setError(err?.message || 'Failed to load configuration.');
     } finally {
@@ -146,7 +144,7 @@ export const AdminPage: React.FC = () => {
           newType === 'SCENARIO'
             ? [
                 { option_key: 'A', label: 'Option A (Story/Discussion)', order_index: 0, pathway_contributions: [{ pathway_code: 'LING', contribution: 1.0 }] },
-                { option_key: 'B', label: 'Option B (Visual diagram)', order_index: 1, pathway_contributions: [{ pathway_code: 'SPAT', contribution: 1.0 }] },
+                { option_key: 'B', label: 'Option B (Visual diagram)', order_index: 1, pathway_contributions: [{ pathway_code: 'VIS', contribution: 1.0 }] },
                 { option_key: 'C', label: 'Option C (Logic puzzle)', order_index: 2, pathway_contributions: [{ pathway_code: 'LOGI', contribution: 1.0 }] },
                 { option_key: 'D', label: 'Option D (Audio/song)', order_index: 3, pathway_contributions: [{ pathway_code: 'MUSI', contribution: 1.0 }] }
               ]
@@ -177,7 +175,6 @@ export const AdminPage: React.FC = () => {
         scenario_limit_seconds: Number(scenarioLimit),
         grace_period_seconds: Number(gracePeriod),
         min_answered_count: Number(minAnswered),
-        near_tie_margin: Number(nearTieMargin)
       });
       setConfig(updated);
       setSuccessMsg(`Assessment configuration updated to v${updated.version}`);
@@ -319,10 +316,12 @@ export const AdminPage: React.FC = () => {
                       >
                         <option value="LING">Linguistic</option>
                         <option value="LOGI">Logical-Mathematical</option>
-                        <option value="SPAT">Spatial/Visual</option>
+                        <option value="VIS">Visual</option>
                         <option value="MUSI">Musical</option>
                         <option value="BODY">Bodily-Kinesthetic</option>
-                        <option value="NATU">Naturalistic</option>
+                        <option value="NAT">Naturalistic</option>
+                        <option value="INTER">Interpersonal</option>
+                        <option value="INTRA">Intrapersonal</option>
                       </select>
                     </div>
                   )}
@@ -618,27 +617,14 @@ export const AdminPage: React.FC = () => {
                   <input
                     type="number"
                     min="1"
-                    max="18"
+                    max="30"
                     className="form-input"
                     value={minAnswered}
                     onChange={(e) => setMinAnswered(Number(e.target.value))}
                   />
-                  <p className="form-hint">Minimum answered questions to issue profile (Default 15 of 18).</p>
+                  <p className="form-hint">Minimum answered questions to issue profile (Default 20 of 30).</p>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Near-Tie Margin (Points)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="20"
-                    className="form-input"
-                    value={nearTieMargin}
-                    onChange={(e) => setNearTieMargin(Number(e.target.value))}
-                  />
-                  <p className="form-hint">Scores within this margin are displayed as blended (Default 5.0).</p>
-                </div>
               </div>
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>

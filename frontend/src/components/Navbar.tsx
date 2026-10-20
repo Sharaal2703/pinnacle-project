@@ -1,11 +1,29 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Compass, User, LogOut, ShieldCheck, History, Award } from 'lucide-react';
+import { Brain, User, LogOut, ShieldCheck, History, Award, ClipboardCheck, UsersRound } from 'lucide-react';
+import { api } from '../api/client';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [canTakeAssessment, setCanTakeAssessment] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    if (user?.role !== 'STUDENT') {
+      setCanTakeAssessment(false);
+      return () => { isCurrent = false; };
+    }
+
+    setCanTakeAssessment(false);
+    api.getAssessmentAccess()
+      .then((access) => { if (isCurrent) setCanTakeAssessment(access.can_take_assessment); })
+      .catch(() => { if (isCurrent) setCanTakeAssessment(false); });
+
+    return () => { isCurrent = false; };
+  }, [user?.id, user?.role, location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -16,7 +34,7 @@ export const Navbar: React.FC = () => {
     <nav className="navbar" aria-label="Main Navigation">
       <div className="nav-wrapper">
         <Link to="/" className="nav-brand">
-          <Compass className="brand-icon" size={28} />
+          <Brain className="brand-icon" size={28} aria-hidden="true" />
           <span>MindBridge</span>
           <span className="nav-brand-badge">Pre-Assessment</span>
         </Link>
@@ -26,27 +44,42 @@ export const Navbar: React.FC = () => {
             <>
               {user?.role === 'STUDENT' && (
                 <>
-                  <Link to="/instructions" className="nav-link">
-                    Instructions
-                  </Link>
-                  <Link to="/assessment" className="nav-link">
-                    Assessment
-                  </Link>
+                  {canTakeAssessment && <>
+                    <Link to="/instructions" className="nav-link">
+                      Instructions
+                    </Link>
+                    <Link to="/assessment" className="nav-link">
+                      Assessment
+                    </Link>
+                  </>}
                   <Link to="/result" className="nav-link">
-                    <Award size={18} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                    <Award size={18} aria-hidden="true" />
                     My Profile
                   </Link>
                   <Link to="/history" className="nav-link">
-                    <History size={18} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                    <History size={18} aria-hidden="true" />
                     History
                   </Link>
                 </>
               )}
 
               {user?.role === 'ADMIN' && (
-                <Link to="/admin" className="nav-link">
-                  <ShieldCheck size={18} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                  Admin Dashboard
+                <>
+                  <Link to="/admin" className="nav-link">
+                    <ShieldCheck size={18} aria-hidden="true" />
+                    Admin Dashboard
+                  </Link>
+                  <Link to="/admin/teachers" className="nav-link">
+                    <UsersRound size={18} aria-hidden="true" />
+                    Teacher Accounts
+                  </Link>
+                </>
+              )}
+
+              {user?.role === 'TEACHER' && (
+                <Link to="/teacher/access" className="nav-link">
+                  <ClipboardCheck size={18} aria-hidden="true" />
+                  <span>Student Access</span>
                 </Link>
               )}
 

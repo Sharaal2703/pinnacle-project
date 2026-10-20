@@ -3,6 +3,14 @@ import { AuthService } from '../services/auth.service';
 import { UnauthorizedError } from '../middleware/error.middleware';
 
 export class AuthController {
+  static async registrationOptions(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(200).json(await AuthService.getRegistrationOptions());
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const result = await AuthService.registerStudent(req.body);

@@ -53,7 +53,7 @@ export class ProfileService {
         is_current: p.isCurrent,
         created_at: p.createdAt.toISOString(),
         scoring_version: p.scoringVersion,
-        near_tie: p.nearTie,
+        tie: p.tie,
         dominant: {
           id: p.dominantPathway.id,
           code: p.dominantPathway.code,
@@ -105,7 +105,7 @@ export class ProfileService {
           isCurrent: true,
           dominantPathwayId: dominantPathway.id,
           secondaryPathwayId: secondaryPathway.id,
-          nearTie: outcome.nearTie,
+          tie: outcome.tie,
           scoringVersion
         }
       });
@@ -144,7 +144,7 @@ export class ProfileService {
       is_current: p.isCurrent,
       created_at: p.createdAt.toISOString(),
       scoring_version: p.scoringVersion,
-      near_tie: p.nearTie,
+      tie: p.tie,
       dominant: {
         id: p.dominantPathway.id,
         code: p.dominantPathway.code,

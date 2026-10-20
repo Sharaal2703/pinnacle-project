@@ -1,0 +1,1460 @@
+{
+  "questionnaire_id": "mindbridge-pre-assessment-v2-en",
+  "language_code": "en",
+  "version": "2.0.0",
+  "grade_min": 6,
+  "grade_max": 8,
+  "session_time_limit_seconds": 2280,
+  "rating_labels": [
+    {
+      "value": 1,
+      "label": "Strongly disagree"
+    },
+    {
+      "value": 2,
+      "label": "Disagree"
+    },
+    {
+      "value": 3,
+      "label": "Neutral"
+    },
+    {
+      "value": 4,
+      "label": "Agree"
+    },
+    {
+      "value": 5,
+      "label": "Strongly agree"
+    }
+  ],
+  "scoring_notes": {
+    "self_report_response_factor": "(rating - 1) / 4",
+    "scenario_mapping_policy": "Each listed MI pathway receives a contribution of 1.0 for the selected option.",
+    "vark_type_role": "VARK labels are retained as source-analysis metadata; only pathway_contributions represent MI scoring mappings."
+  },
+  "sources": [
+    {
+      "id": "CSUSB_KIDS_MI",
+      "title": "Multiple Intelligence Survey for Kids",
+      "url": "https://www.csusb.edu/sites/default/files/MULT%20INTELLIGENCE%20survey%20FOR%20KIDS.pdf"
+    },
+    {
+      "id": "MENTALUP_MI",
+      "title": "MentalUP Multiple Intelligence Test",
+      "url": "https://www.mentalup.co/blog/multiple-intelligence-test"
+    },
+    {
+      "id": "PSYCHOLOGY_MI",
+      "title": "Psychology.com Multiple Intelligences Test",
+      "url": "https://psychology.com/tests/multiple-intelligences"
+    },
+    {
+      "id": "VARK_LEARN",
+      "title": "VARK Questionnaire",
+      "url": "https://vark-learn.com/the-vark-questionnaire/"
+    },
+    {
+      "id": "VARK_NHS",
+      "title": "VARK Questionnaire, NHS GP Training copy",
+      "url": "https://gp-training.hee.nhs.uk/swindon/wp-content/uploads/sites/71/2021/06/12-VARK-Questionnaire-blank.pdf"
+    },
+    {
+      "id": "MCKENZIE_MI_1999",
+      "title": "McKenzie Multiple Intelligences survey (1999), as identified in the selected source file",
+      "url": null,
+      "citation_note": "Verify full source details before publication."
+    }
+  ],
+  "review": {
+    "status": "DRAFT",
+    "reviewer_name": null,
+    "review_date": null,
+    "notes": "Selected wording and proposed mappings require authorized teacher review and pilot testing. Confirm reuse permissions for source wording. Each listed MI pathway on a selected scenario option receives a full contribution of 1.0. File metadata do not authorize publication."
+  },
+  "items": [
+    {
+      "key": "SR_LING_01",
+      "type": "SELF_REPORT",
+      "prompt": "I love crossword puzzles and other word games.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LING",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 1
+    },
+    {
+      "key": "SR_LING_02",
+      "type": "SELF_REPORT",
+      "prompt": "I'm good at expressing my thoughts by writing.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LING",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "MENTALUP_MI",
+      "selection_order": 2
+    },
+    {
+      "key": "SR_LING_03",
+      "type": "SELF_REPORT",
+      "prompt": "I find it easy to explain a complicated idea clearly to someone else.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LING",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 3
+    },
+    {
+      "key": "SR_LOGI_01",
+      "type": "SELF_REPORT",
+      "prompt": "I can learn new math ideas easily.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LOGI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 4
+    },
+    {
+      "key": "SR_LOGI_02",
+      "type": "SELF_REPORT",
+      "prompt": "I like to play games involving numbers and logic.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LOGI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 5
+    },
+    {
+      "key": "SR_LOGI_03",
+      "type": "SELF_REPORT",
+      "prompt": "I like working through a problem step by step until it makes sense.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "LOGI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 6
+    },
+    {
+      "key": "SR_VIS_01",
+      "type": "SELF_REPORT",
+      "prompt": "Charts, maps, and graphic organizers help me learn.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "VIS",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 7
+    },
+    {
+      "key": "SR_VIS_02",
+      "type": "SELF_REPORT",
+      "prompt": "I love painting, drawing, or designing on the computer.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "VIS",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 8
+    },
+    {
+      "key": "SR_VIS_03",
+      "type": "SELF_REPORT",
+      "prompt": "I notice small visual details, like color, layout, or design, that others miss.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "VIS",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 9
+    },
+    {
+      "key": "SR_MUSIC_01",
+      "type": "SELF_REPORT",
+      "prompt": "I notice small differences in rhythm, pitch, or tone that others might miss.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "MUSI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 10
+    },
+    {
+      "key": "SR_MUSIC_02",
+      "type": "SELF_REPORT",
+      "prompt": "I can pick up a melody or rhythm quickly after hearing it once.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "MUSI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 11
+    },
+    {
+      "key": "SR_MUSIC_03",
+      "type": "SELF_REPORT",
+      "prompt": "Learning through rhythm or song sticks with me better than plain repetition.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "MUSI",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 12
+    },
+    {
+      "key": "SR_BODY_01",
+      "type": "SELF_REPORT",
+      "prompt": "My best way to learn is by doing hands-on activities.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "BODY",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 13
+    },
+    {
+      "key": "SR_BODY_02",
+      "type": "SELF_REPORT",
+      "prompt": "I am good at physical activities like sports or dancing.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "BODY",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 14
+    },
+    {
+      "key": "SR_BODY_03",
+      "type": "SELF_REPORT",
+      "prompt": "I'm good with my hands, whether building, repairing, or crafting something.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "BODY",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 15
+    },
+    {
+      "key": "SR_NAT_01",
+      "type": "SELF_REPORT",
+      "prompt": "I enjoy studying about the earth and nature.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "NAT",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 16
+    },
+    {
+      "key": "SR_NAT_02",
+      "type": "SELF_REPORT",
+      "prompt": "I enjoy caring for pets and other animals.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "NAT",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 17
+    },
+    {
+      "key": "SR_NAT_03",
+      "type": "SELF_REPORT",
+      "prompt": "I notice small differences between plants, animals, or natural features that others overlook.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "NAT",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 18
+    },
+    {
+      "key": "SR_INTER_01",
+      "type": "SELF_REPORT",
+      "prompt": "I get along well with different types of people.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTER",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 19
+    },
+    {
+      "key": "SR_INTER_02",
+      "type": "SELF_REPORT",
+      "prompt": "I can usually tell how someone is feeling before they say anything.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTER",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 20
+    },
+    {
+      "key": "SR_INTER_03",
+      "type": "SELF_REPORT",
+      "prompt": "I'm good at resolving disagreements between other people.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTER",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 21
+    },
+    {
+      "key": "SR_INTRA_01",
+      "type": "SELF_REPORT",
+      "prompt": "I often think about my goals and dreams for the future.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTRA",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 22
+    },
+    {
+      "key": "SR_INTRA_02",
+      "type": "SELF_REPORT",
+      "prompt": "I have a clear sense of my own strengths, limits, and values.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTRA",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "PSYCHOLOGY_MI",
+      "selection_order": 23
+    },
+    {
+      "key": "SR_INTRA_03",
+      "type": "SELF_REPORT",
+      "prompt": "Having quiet time to think over ideas is important to me.",
+      "weight": 1.0,
+      "time_limit_seconds": 45,
+      "pathway_code": "INTRA",
+      "rating_scale": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_id": "CSUSB_KIDS_MI",
+      "selection_order": 24
+    },
+    {
+      "key": "SC_V2_01",
+      "type": "SCENARIO",
+      "prompt": "I want to learn how to play a new board game or card game. I would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_01_A",
+          "label": "listen to somebody explaining it and ask questions.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_01_B",
+          "label": "read the instructions.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_01_C",
+          "label": "watch others play the game before joining in.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_01_D",
+          "label": "use the diagrams that explain the various stages, moves and strategies in the game.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_02",
+      "type": "SCENARIO",
+      "prompt": "I am making a history of the area where I live. I would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_02_A",
+          "label": "compare historical photos of the area with what is there now.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_02_B",
+          "label": "record stories from people talking about old times.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_02_C",
+          "label": "gather old maps and charts.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_02_D",
+          "label": "read articles and other information in old newspapers and documents.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_03",
+      "type": "SCENARIO",
+      "prompt": "When I am learning I:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_03_A",
+          "label": "read books, articles and handouts.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_03_B",
+          "label": "use examples and applications.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_03_C",
+          "label": "see patterns in things.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_03_D",
+          "label": "like to talk things through.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_04",
+      "type": "SCENARIO",
+      "prompt": "When learning from the Internet I like:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_04_A",
+          "label": "videos showing how to do things.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_04_B",
+          "label": "detailed articles.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_04_C",
+          "label": "podcasts and videos where I can listen to experts.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_04_D",
+          "label": "interesting design and visual features.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_05",
+      "type": "SCENARIO",
+      "prompt": "I want to learn how to take better photos. I would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_05_A",
+          "label": "use diagrams showing the camera and what each part does.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_05_B",
+          "label": "ask questions and talk about the camera and its features.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_05_C",
+          "label": "use the written instructions about what to do.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_05_D",
+          "label": "use examples of good and poor photos showing how to improve them.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_06",
+      "type": "SCENARIO",
+      "prompt": "I want to learn to do something new on a computer. I would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_06_A",
+          "label": "talk with people who know about the program.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_06_B",
+          "label": "read the written instructions that came with the program.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_06_C",
+          "label": "start using it and learn by trial and error.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_06_D",
+          "label": "follow the diagrams in a book.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_07",
+      "type": "SCENARIO",
+      "prompt": "I have finished a competition or test and I would like some feedback:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_LEARN",
+      "options": [
+        {
+          "key": "SC_V2_07_A",
+          "label": "using graphs showing how my performance has improved.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTRA",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_07_B",
+          "label": "using a written description of my results.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_07_C",
+          "label": "using examples from what I have done.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "INTRA",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_07_D",
+          "label": "from somebody who talks it through with me.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_08",
+      "type": "SCENARIO",
+      "prompt": "You are helping someone who wants to go to your airport, the center of town or railway station. You would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_NHS",
+      "options": [
+        {
+          "key": "SC_V2_08_A",
+          "label": "go with her.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_08_B",
+          "label": "tell her the directions.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_08_C",
+          "label": "write down the directions.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_08_D",
+          "label": "draw, or give her a map.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_09",
+      "type": "SCENARIO",
+      "prompt": "A group of tourists want to learn about the parks or wildlife reserves in your area. You would:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_NHS",
+      "options": [
+        {
+          "key": "SC_V2_09_A",
+          "label": "talk about, or arrange a talk for them about parks or wildlife reserves.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "NAT",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_09_B",
+          "label": "show them internet pictures, photographs or picture books.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "NAT",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_09_C",
+          "label": "take them to a park or wildlife reserve and walk with them.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "NAT",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_09_D",
+          "label": "give them a book or pamphlets about the parks or wildlife reserves.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "NAT",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_10",
+      "type": "SCENARIO",
+      "prompt": "Remember a time when you learned how to do something new. Try to avoid choosing a physical skill, e.g., riding a bike. You learned best by:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_NHS",
+      "options": [
+        {
+          "key": "SC_V2_10_A",
+          "label": "watching a demonstration.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_10_B",
+          "label": "listening to somebody explaining it and asking questions.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_10_C",
+          "label": "diagrams and charts - visual clues.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_10_D",
+          "label": "written instructions – e.g. a manual or textbook.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_11",
+      "type": "SCENARIO",
+      "prompt": "I like websites that have:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "VARK_NHS",
+      "options": [
+        {
+          "key": "SC_V2_11_A",
+          "label": "things I can click on, shift or try.",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_11_B",
+          "label": "interesting design and visual features.",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_11_C",
+          "label": "interesting written descriptions, lists and explanations.",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_11_D",
+          "label": "audio channels where I can hear music, radio programs or interviews.",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "MUSI",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_12",
+      "type": "SCENARIO",
+      "prompt": "When you are trying to solve a difficult problem, what do you prefer?",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "MCKENZIE_MI_1999",
+      "options": [
+        {
+          "key": "SC_V2_12_A",
+          "label": "Draw the problem or create a visual representation",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_12_B",
+          "label": "Discuss the problem with someone",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_12_C",
+          "label": "Write down the problem and work through it step by step",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_12_D",
+          "label": "Try different approaches until you find what works",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_13",
+      "type": "SCENARIO",
+      "prompt": "When studying by yourself, which approach helps you most?",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "MCKENZIE_MI_1999",
+      "options": [
+        {
+          "key": "SC_V2_13_A",
+          "label": "Making visual summaries, diagrams, or mind maps",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_13_B",
+          "label": "Explaining the topic aloud to yourself",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTRA",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_13_C",
+          "label": "Reading and writing your own notes",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTRA",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_13_D",
+          "label": "Practicing the topic through activities",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_14",
+      "type": "SCENARIO",
+      "prompt": "When learning something that is difficult to remember, which would you prefer?",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "MCKENZIE_MI_1999",
+      "options": [
+        {
+          "key": "SC_V2_14_A",
+          "label": "Seeing the information visually",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_14_B",
+          "label": "Using sound, rhythm, or a rhyme to remember it",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "MUSI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_14_C",
+          "label": "Writing the information repeatedly",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_14_D",
+          "label": "Connecting it with an activity or experience",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_15",
+      "type": "SCENARIO",
+      "prompt": "When you make a mistake while learning, what helps you learn from it?",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "MCKENZIE_MI_1999",
+      "options": [
+        {
+          "key": "SC_V2_15_A",
+          "label": "Seeing what went wrong in a diagram or visual example",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_15_B",
+          "label": "Talking about the mistake with someone",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_15_C",
+          "label": "Writing down what went wrong and how to improve",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTRA",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_15_D",
+          "label": "Trying the task again yourself",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "SC_V2_16",
+      "type": "SCENARIO",
+      "prompt": "When you need to understand information containing numbers or data, you prefer:",
+      "weight": 1.0,
+      "time_limit_seconds": 75,
+      "source_id": "MCKENZIE_MI_1999",
+      "options": [
+        {
+          "key": "SC_V2_16_A",
+          "label": "Graphs, charts, and tables",
+          "vark_type": "V",
+          "pathway_contributions": [
+            {
+              "pathway_code": "VIS",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_16_B",
+          "label": "Someone explaining what the data means",
+          "vark_type": "A",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "INTER",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_16_C",
+          "label": "Reading the data and written explanation",
+          "vark_type": "R",
+          "pathway_contributions": [
+            {
+              "pathway_code": "LING",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        },
+        {
+          "key": "SC_V2_16_D",
+          "label": "Working with the data yourself",
+          "vark_type": "K",
+          "pathway_contributions": [
+            {
+              "pathway_code": "BODY",
+              "contribution": 1.0
+            },
+            {
+              "pathway_code": "LOGI",
+              "contribution": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

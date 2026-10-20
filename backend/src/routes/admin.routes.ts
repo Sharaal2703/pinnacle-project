@@ -6,7 +6,8 @@ import {
   CreateQuestionInputSchema,
   UpdateQuestionInputSchema,
   ReviewQuestionInputSchema,
-  UpdateAssessmentConfigSchema
+  UpdateAssessmentConfigSchema,
+  CreateTeacherAccountSchema
 } from '@pinnacle/shared';
 import { z } from 'zod';
 
@@ -46,6 +47,8 @@ router.delete(
 );
 
 router.get('/assessment-config', AdminController.getConfig);
+router.get('/teachers', AdminController.listTeachers);
+router.post('/teachers', validateBody(CreateTeacherAccountSchema), AdminController.createTeacher);
 router.put(
   '/assessment-config',
   validateBody(UpdateAssessmentConfigSchema),

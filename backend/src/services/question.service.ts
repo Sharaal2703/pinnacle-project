@@ -11,7 +11,7 @@ export class QuestionService {
   static async listQuestions(): Promise<any[]> {
     const questions = await prisma.questionVersion.findMany({
       include: {
-        pathway: true,
+        intelligenceMappings: { include: { pathway: true } },
         options: {
           include: {
             pathwayMappings: {
@@ -31,7 +31,7 @@ export class QuestionService {
     const q = await prisma.questionVersion.findUnique({
       where: { id },
       include: {
-        pathway: true,
+        intelligenceMappings: { include: { pathway: true } },
         options: {
           include: {
             pathwayMappings: {
@@ -68,10 +68,10 @@ export class QuestionService {
           gradeMin: input.grade_min,
           gradeMax: input.grade_max,
           weight: input.weight,
-          timeLimitSec: input.time_limit_seconds ?? (input.type === 'SELF_REPORT' ? 60 : 90),
+          timeLimitSec: input.time_limit_seconds ?? (input.type === 'SELF_REPORT' ? 45 : 75),
           reviewStatus: 'DRAFT',
           isActive: false,
-          pathwayId
+          intelligenceMappings: pathwayId ? { create: [{ pathwayId, contribution: 1.0 }] } : undefined
         }
       });
 
@@ -83,7 +83,8 @@ export class QuestionService {
               questionVersionId: q.id,
               optionKey: opt.option_key,
               label: opt.label,
-              orderIndex: opt.order_index ?? i
+              orderIndex: opt.order_index ?? i,
+              varkType: opt.vark_type ?? null
             }
           });
 
@@ -112,6 +113,7 @@ export class QuestionService {
     const existing = await prisma.questionVersion.findUnique({
       where: { id: questionId },
       include: {
+        intelligenceMappings: true,
         options: {
           include: { pathwayMappings: { include: { pathway: true } } }
         }
@@ -130,7 +132,7 @@ export class QuestionService {
 
     const nextVersion = (latestVersion?.version ?? existing.version) + 1;
 
-    let pathwayId = existing.pathwayId;
+    let pathwayId = existing.intelligenceMappings[0]?.pathwayId;
     if (input.pathway_code) {
       const pw = await prisma.pathway.findUnique({ where: { code: input.pathway_code } });
       if (!pw) throw new ValidationError(`Invalid pathway code ${input.pathway_code}`);
@@ -150,7 +152,7 @@ export class QuestionService {
           timeLimitSec: input.time_limit_seconds ?? existing.timeLimitSec,
           reviewStatus: 'DRAFT', // New versions reset to DRAFT until reviewed
           isActive: false,
-          pathwayId
+          intelligenceMappings: pathwayId ? { create: [{ pathwayId, contribution: 1.0 }] } : undefined
         }
       });
 
@@ -160,6 +162,7 @@ export class QuestionService {
             option_key: opt.optionKey,
             label: opt.label,
             order_index: opt.orderIndex,
+            vark_type: opt.varkType,
             pathway_contributions: opt.pathwayMappings.map((m) => ({
               pathway_code: m.pathway.code,
               contribution: Number(m.contribution)
@@ -173,7 +176,8 @@ export class QuestionService {
             questionVersionId: q.id,
             optionKey: opt.option_key,
             label: opt.label,
-            orderIndex: opt.order_index ?? i
+            orderIndex: opt.order_index ?? i,
+            varkType: opt.vark_type ?? null
           }
         });
 
@@ -249,7 +253,7 @@ export class QuestionService {
         reviewStatus: 'APPROVED'
       },
       include: {
-        pathway: true,
+        intelligenceMappings: { include: { pathway: true } },
         options: {
           include: {
             pathwayMappings: {
@@ -279,12 +283,13 @@ export class QuestionService {
       review_notes: q.reviewNotes,
       reviewed_at: q.reviewedAt ? q.reviewedAt.toISOString() : null,
       is_active: q.isActive,
-      pathway_code: q.pathway?.code ?? null,
+      pathway_code: q.intelligenceMappings?.[0]?.pathway?.code ?? null,
       options: (q.options || []).map((opt: any) => ({
         id: opt.id,
         option_key: opt.optionKey,
         label: opt.label,
         order_index: opt.orderIndex,
+        vark_type: opt.varkType,
         pathway_contributions: (opt.pathwayMappings || []).map((m: any) => ({
           pathway_code: m.pathway.code,
           contribution: Number(m.contribution)

@@ -16,7 +16,12 @@ import type {
   ReviewQuestionInput,
   AssessmentConfig,
   UpdateAssessmentConfig,
-  ErrorResponse
+  ErrorResponse,
+  StudentAssessmentAccess,
+  ManagedAssessmentStudent,
+  TeacherAccount,
+  CreateTeacherAccount,
+  RegistrationOptions
 } from '@pinnacle/shared';
 
 // In-memory token storage (with sessionStorage sync to survive page refreshes in the same tab, never localStorage)
@@ -100,6 +105,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
 export const api = {
   // Auth
+  async getRegistrationOptions(): Promise<RegistrationOptions> {
+    return request<RegistrationOptions>('/auth/registration-options', { method: 'GET' });
+  },
+
   async register(payload: RegisterRequest): Promise<AuthResponse> {
     const res = await request<AuthResponse>('/auth/register', {
       method: 'POST',
@@ -120,6 +129,22 @@ export const api = {
 
   async getMe(): Promise<UserSummary> {
     return request<UserSummary>('/auth/me', { method: 'GET' });
+  },
+
+  async getAssessmentAccess(): Promise<StudentAssessmentAccess> {
+    return request<StudentAssessmentAccess>('/students/me/assessment-access', { method: 'GET' });
+  },
+
+  async listManagedAssessmentStudents(): Promise<ManagedAssessmentStudent[]> {
+    return request<ManagedAssessmentStudent[]>('/assessment-access/students', { method: 'GET' });
+  },
+
+  async grantAssessmentRetake(studentId: string): Promise<{ message: string; granted_at: string }> {
+    return request(`/assessment-access/students/${studentId}/retake-access`, { method: 'POST' });
+  },
+
+  async revokeAssessmentRetake(studentId: string): Promise<{ message: string }> {
+    return request(`/assessment-access/students/${studentId}/retake-access`, { method: 'DELETE' });
   },
 
   logout(): void {
@@ -200,6 +225,17 @@ export const api = {
   async updateAdminConfig(payload: UpdateAssessmentConfig): Promise<AssessmentConfig> {
     return request<AssessmentConfig>('/admin/assessment-config', {
       method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async listTeacherAccounts(): Promise<TeacherAccount[]> {
+    return request<TeacherAccount[]>('/admin/teachers', { method: 'GET' });
+  },
+
+  async createTeacherAccount(payload: CreateTeacherAccount): Promise<TeacherAccount> {
+    return request<TeacherAccount>('/admin/teachers', {
+      method: 'POST',
       body: JSON.stringify(payload)
     });
   }

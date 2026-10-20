@@ -7,6 +7,7 @@ import {
 } from '../middleware/error.middleware';
 import { ConfigService } from './config.service';
 import { TimerService } from './timer.service';
+import { AssessmentAccessService } from './assessment-access.service';
 import { ScoringEngine, QuestionScoringItem, AnswerResponseItem } from './scoring.service';
 import { ProfileService } from './profile.service';
 import {
@@ -37,14 +38,14 @@ export class AttemptService {
       // Check if total assessment time has expired
       const isTotalTimedOut = TimerService.isAssessmentTimedOut(
         activeAttempt.startedAt,
-        config.totalLimitSec,
+        activeAttempt.totalTimeLimitSec,
         config.gracePeriodSec
       );
 
       if (!isTotalTimedOut) {
         const remainingSec = TimerService.getAssessmentRemainingSec(
           activeAttempt.startedAt,
-          config.totalLimitSec
+          activeAttempt.totalTimeLimitSec
         );
         const questionIds = activeAttempt.questionOrder as string[];
 
@@ -63,48 +64,77 @@ export class AttemptService {
       }
     }
 
+    // A scored attempt blocks another attempt unless a teacher/admin granted
+    // a one-use retake authorization.
+    const retakeGrantId = await AssessmentAccessService.getGrantForNewAttempt(studentId);
+
     const config = await ConfigService.getActiveConfig();
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { grade: true }
+    });
+    if (!student) throw new NotFoundError('Student record not found.');
 
-    // Fetch approved active questions to construct the attempt's fixed order
-    let selfReportQuestions = await prisma.questionVersion.findMany({
-      where: { isActive: true, reviewStatus: 'APPROVED', type: 'SELF_REPORT' },
-      orderBy: { key: 'asc' }
+    if (config.questionCount !== config.selfReportCount + config.scenarioCount) {
+      throw new ValidationError('Assessment configuration question counts do not add up to the total question count.');
+    }
+
+    // Candidate questions must come from one versioned bank and be approved,
+    // active, and appropriate for the student's grade.
+    const banks = await prisma.questionnaireVersion.findMany({
+      where: {
+        gradeMin: { lte: student.grade },
+        gradeMax: { gte: student.grade },
+        questions: {
+          some: { isActive: true, reviewStatus: 'APPROVED' }
+        }
+      },
+      include: {
+        questions: {
+          where: {
+            isActive: true,
+            reviewStatus: 'APPROVED',
+            gradeMin: { lte: student.grade },
+            gradeMax: { gte: student.grade }
+          },
+          orderBy: [{ type: 'asc' }, { selectionOrder: 'asc' }, { key: 'asc' }],
+          select: { id: true, type: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     });
 
-    let scenarioQuestions = await prisma.questionVersion.findMany({
-      where: { isActive: true, reviewStatus: 'APPROVED', type: 'SCENARIO' },
-      orderBy: { key: 'asc' }
+    const questionnaireVersion = banks.find((bank) => {
+      const selfReportCount = bank.questions.filter((question) => question.type === 'SELF_REPORT').length;
+      const scenarioCount = bank.questions.filter((question) => question.type === 'SCENARIO').length;
+      return selfReportCount >= config.selfReportCount && scenarioCount >= config.scenarioCount;
     });
 
-    if (selfReportQuestions.length < 6 || scenarioQuestions.length < 12) {
+    if (!questionnaireVersion) {
       throw new ValidationError(
-        'Assessment bank is not fully configured with 6 self-report and 12 scenario approved questions.'
+        `No approved, active questionnaire version for grade ${student.grade} has at least ` +
+        `${config.selfReportCount} self-report and ${config.scenarioCount} scenario questions.`
       );
     }
 
-    const orderedQuestionIds = [
-      ...selfReportQuestions.slice(0, 6).map((q) => q.id),
-      ...scenarioQuestions.slice(0, 12).map((q) => q.id)
-    ];
+    const selfReportQuestionIds = questionnaireVersion.questions
+      .filter((question) => question.type === 'SELF_REPORT')
+      .slice(0, config.selfReportCount)
+      .map((question) => question.id);
+    const scenarioQuestionIds = questionnaireVersion.questions
+      .filter((question) => question.type === 'SCENARIO')
+      .slice(0, config.scenarioCount)
+      .map((question) => question.id);
+    const orderedQuestionIds = [...selfReportQuestionIds, ...scenarioQuestionIds];
+    const startedAt = new Date();
 
-    // Find next attempt number
-    const latestAttempt = await prisma.assessmentAttempt.findFirst({
-      where: { studentId },
-      orderBy: { attemptNo: 'desc' }
-    });
-
-    const nextAttemptNo = (latestAttempt?.attemptNo ?? 0) + 1;
-
-    const newAttempt = await prisma.assessmentAttempt.create({
-      data: {
-        studentId,
-        attemptNo: nextAttemptNo,
-        status: 'IN_PROGRESS',
-        questionOrder: orderedQuestionIds,
-        currentIndex: 1,
-        startedAt: new Date(),
-        scoringConfigVersion: config.version
-      }
+    const newAttempt = await AssessmentAccessService.createAuthorizedAttempt(studentId, retakeGrantId, {
+      questionOrder: orderedQuestionIds,
+      startedAt,
+      scoringConfigVersion: config.version,
+      totalTimeLimitSec: config.totalLimitSec,
+      expiresAt: new Date(startedAt.getTime() + config.totalLimitSec * 1000),
+      questionnaireVersionId: questionnaireVersion.id
     });
 
     return {
@@ -139,7 +169,7 @@ export class AttemptService {
     }
 
     const config = await ConfigService.getByVersion(attempt.scoringConfigVersion);
-    if (TimerService.isAssessmentTimedOut(attempt.startedAt, config.totalLimitSec, config.gracePeriodSec)) {
+    if (TimerService.isAssessmentTimedOut(attempt.startedAt, attempt.totalTimeLimitSec, config.gracePeriodSec)) {
       throw new ConflictError('Assessment time has expired; submit to finalize the attempt.');
     }
     const questionIds = attempt.questionOrder as string[];
@@ -194,7 +224,7 @@ export class AttemptService {
 
     const assessmentRemainingSec = TimerService.getAssessmentRemainingSec(
       attempt.startedAt,
-      config.totalLimitSec,
+      attempt.totalTimeLimitSec,
       now
     );
 
@@ -230,7 +260,7 @@ export class AttemptService {
 
     const question = await prisma.questionVersion.findUnique({
       where: { id: data.question_id },
-      include: { pathway: true, options: { include: { pathwayMappings: true } } }
+      include: { intelligenceMappings: true, options: { include: { pathwayMappings: true } } }
     });
     if (!question) throw new NotFoundError('Question not found');
 
@@ -266,7 +296,7 @@ export class AttemptService {
         const effectiveTimedOut = TimerService.isQuestionTimedOut(
           shownAt, question.timeLimitSec, config.gracePeriodSec, now
         ) || TimerService.isAssessmentTimedOut(
-          attempt.startedAt, config.totalLimitSec, config.gracePeriodSec, now
+          attempt.startedAt, attempt.totalTimeLimitSec, config.gracePeriodSec, now
         );
 
         let responseWeight = 0;
@@ -360,7 +390,7 @@ export class AttemptService {
 
     const isAssessmentTimedOut = TimerService.isAssessmentTimedOut(
       attempt.startedAt,
-      config.totalLimitSec,
+      attempt.totalTimeLimitSec,
       config.gracePeriodSec,
       now
     );
@@ -417,7 +447,7 @@ export class AttemptService {
     const questions = await prisma.questionVersion.findMany({
       where: { id: { in: questionIds } },
       include: {
-        pathway: true,
+        intelligenceMappings: { include: { pathway: true } },
         options: {
           include: {
             pathwayMappings: {
@@ -432,7 +462,7 @@ export class AttemptService {
       questionId: q.id,
       type: q.type,
       weight: Number(q.weight),
-      pathwayCode: q.pathway?.code,
+      pathwayCode: q.intelligenceMappings[0]?.pathway.code,
       options: q.options.map((opt) => ({
         id: opt.id,
         contributions: opt.pathwayMappings.map((m) => ({
@@ -447,6 +477,7 @@ export class AttemptService {
       return {
         questionId: r.questionVersionId,
         timedOut: r.timedOut,
+        timeTakenMs: r.timeTakenMs,
         rating: ans?.rating,
         optionId: r.optionId
       };
@@ -455,8 +486,7 @@ export class AttemptService {
     const scoringOutcome = ScoringEngine.scoreAttempt(
       questionScoringItems,
       answerResponseItems,
-      config.minAnsweredCount,
-      Number(config.nearTieMargin)
+      config.minAnsweredCount
     );
 
     if (!scoringOutcome.canIssueProfile) {
@@ -475,7 +505,7 @@ export class AttemptService {
         message: `Fewer than ${config.minAnsweredCount} questions were answered. A learning preference profile cannot be issued. Please retake the assessment.`,
         primary: null,
         secondary: null,
-        near_tie: false,
+        tie: false,
         scoring_version: config.version,
         answered_count: scoringOutcome.answeredCount,
         timed_out_count: scoringOutcome.timedOutCount,
@@ -513,7 +543,7 @@ export class AttemptService {
       message: 'Assessment completed and preference profile generated successfully.',
       primary: profile.dominant,
       secondary: profile.secondary,
-      near_tie: profile.near_tie,
+      tie: profile.tie,
       scoring_version: profile.scoring_version,
       answered_count: scoringOutcome.answeredCount,
       timed_out_count: scoringOutcome.timedOutCount,

@@ -1,8 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { QuestionService } from '../services/question.service';
 import { ConfigService } from '../services/config.service';
+import { TeacherAccountService } from '../services/teacher-account.service';
 
 export class AdminController {
+  static async listTeachers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(200).json(await TeacherAccountService.listTeachers());
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async createTeacher(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(201).json(await TeacherAccountService.createTeacherAccount(req.body));
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async listQuestions(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const questions = await QuestionService.listQuestions();
@@ -68,7 +85,6 @@ export class AdminController {
         scenario_limit_seconds: cfg.scenarioLimitSec,
         grace_period_seconds: cfg.gracePeriodSec,
         min_answered_count: cfg.minAnsweredCount,
-        near_tie_margin: Number(cfg.nearTieMargin),
         default_question_weight: Number(cfg.defaultQuestionWeight),
         scoring_formula_version: cfg.scoringFormulaVersion,
         is_active: cfg.isActive,
@@ -88,7 +104,6 @@ export class AdminController {
         scenarioLimitSec: b.scenario_limit_seconds,
         gracePeriodSec: b.grace_period_seconds,
         minAnsweredCount: b.min_answered_count,
-        nearTieMargin: b.near_tie_margin,
         defaultQuestionWeight: b.default_question_weight,
         scoringFormulaVersion: b.scoring_formula_version
       });
@@ -101,7 +116,6 @@ export class AdminController {
         scenario_limit_seconds: cfg.scenarioLimitSec,
         grace_period_seconds: cfg.gracePeriodSec,
         min_answered_count: cfg.minAnsweredCount,
-        near_tie_margin: Number(cfg.nearTieMargin),
         default_question_weight: Number(cfg.defaultQuestionWeight),
         scoring_formula_version: cfg.scoringFormulaVersion,
         is_active: cfg.isActive,

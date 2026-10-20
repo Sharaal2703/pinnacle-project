@@ -80,10 +80,45 @@
             "type": "string",
             "minLength": 6
           },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 254,
+                "format": "email"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200
+          },
           "grade": {
             "type": "integer",
             "minimum": 6,
             "maximum": 8
+          },
+          "school_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "class_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "admission_number": {
+            "type": "string",
+            "maxLength": 50
           }
         },
         "required": [
@@ -133,6 +168,7 @@
                 "type": "string",
                 "enum": [
                   "STUDENT",
+                  "TEACHER",
                   "ADMIN"
                 ]
               },
@@ -171,6 +207,7 @@
             "type": "string",
             "enum": [
               "STUDENT",
+              "TEACHER",
               "ADMIN"
             ]
           },
@@ -184,6 +221,207 @@
           "name",
           "username",
           "role"
+        ]
+      },
+      "CreateTeacherAccount": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 254,
+                "format": "email"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "school_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "new_school": {
+            "type": "object",
+            "properties": {
+              "school_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "address": {
+                "type": "string",
+                "maxLength": 250
+              },
+              "city": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "district": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "state": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "pincode": {
+                "type": "string",
+                "maxLength": 20
+              }
+            },
+            "required": [
+              "school_name"
+            ]
+          },
+          "employee_number": {
+            "type": "string",
+            "maxLength": 50
+          }
+        },
+        "required": [
+          "name",
+          "username",
+          "password"
+        ]
+      },
+      "RegistrationOptions": {
+        "type": "object",
+        "properties": {
+          "schools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "school_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "grade": {
+                  "type": "integer"
+                },
+                "section": {
+                  "type": "string"
+                },
+                "academic_year": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "school_id",
+                "grade",
+                "section",
+                "academic_year"
+              ]
+            }
+          }
+        },
+        "required": [
+          "schools",
+          "classes"
+        ]
+      },
+      "TeacherAccount": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "school_name": {
+            "type": "string"
+          },
+          "employee_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "username",
+          "email",
+          "phone",
+          "location",
+          "school_name",
+          "employee_number",
+          "is_active",
+          "created_at"
         ]
       },
       "QuestionVersion": {
@@ -259,10 +497,12 @@
             "enum": [
               "LING",
               "LOGI",
-              "SPAT",
+              "VIS",
               "MUSI",
               "BODY",
-              "NATU"
+              "NAT",
+              "INTER",
+              "INTRA"
             ]
           },
           "options": {
@@ -283,6 +523,16 @@
                 "order_index": {
                   "type": "integer"
                 },
+                "vark_type": {
+                  "type": "string",
+                  "nullable": true,
+                  "enum": [
+                    "V",
+                    "A",
+                    "R",
+                    "K"
+                  ]
+                },
                 "pathway_contributions": {
                   "type": "array",
                   "items": {
@@ -293,16 +543,19 @@
                         "enum": [
                           "LING",
                           "LOGI",
-                          "SPAT",
+                          "VIS",
                           "MUSI",
                           "BODY",
-                          "NATU"
+                          "NAT",
+                          "INTER",
+                          "INTRA"
                         ]
                       },
                       "contribution": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
+                        "enum": [
+                          1
+                        ]
                       }
                     },
                     "required": [
@@ -382,10 +635,12 @@
             "enum": [
               "LING",
               "LOGI",
-              "SPAT",
+              "VIS",
               "MUSI",
               "BODY",
-              "NATU"
+              "NAT",
+              "INTER",
+              "INTRA"
             ]
           },
           "options": {
@@ -405,6 +660,16 @@
                   "type": "integer",
                   "default": 0
                 },
+                "vark_type": {
+                  "type": "string",
+                  "nullable": true,
+                  "enum": [
+                    "V",
+                    "A",
+                    "R",
+                    "K"
+                  ]
+                },
                 "pathway_contributions": {
                   "type": "array",
                   "items": {
@@ -415,16 +680,19 @@
                         "enum": [
                           "LING",
                           "LOGI",
-                          "SPAT",
+                          "VIS",
                           "MUSI",
                           "BODY",
-                          "NATU"
+                          "NAT",
+                          "INTER",
+                          "INTRA"
                         ]
                       },
                       "contribution": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
+                        "enum": [
+                          1
+                        ]
                       }
                     },
                     "required": [
@@ -481,10 +749,12 @@
             "enum": [
               "LING",
               "LOGI",
-              "SPAT",
+              "VIS",
               "MUSI",
               "BODY",
-              "NATU"
+              "NAT",
+              "INTER",
+              "INTRA"
             ]
           },
           "options": {
@@ -504,6 +774,16 @@
                   "type": "integer",
                   "default": 0
                 },
+                "vark_type": {
+                  "type": "string",
+                  "nullable": true,
+                  "enum": [
+                    "V",
+                    "A",
+                    "R",
+                    "K"
+                  ]
+                },
                 "pathway_contributions": {
                   "type": "array",
                   "items": {
@@ -514,16 +794,19 @@
                         "enum": [
                           "LING",
                           "LOGI",
-                          "SPAT",
+                          "VIS",
                           "MUSI",
                           "BODY",
-                          "NATU"
+                          "NAT",
+                          "INTER",
+                          "INTRA"
                         ]
                       },
                       "contribution": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1
+                        "enum": [
+                          1
+                        ]
                       }
                     },
                     "required": [
@@ -599,10 +882,6 @@
             "minimum": 0,
             "exclusiveMinimum": true
           },
-          "near_tie_margin": {
-            "type": "number",
-            "minimum": 0
-          },
           "default_question_weight": {
             "type": "number",
             "minimum": 0,
@@ -627,7 +906,6 @@
           "scenario_limit_seconds",
           "grace_period_seconds",
           "min_answered_count",
-          "near_tie_margin",
           "default_question_weight",
           "scoring_formula_version",
           "is_active"
@@ -664,10 +942,6 @@
             "minimum": 0,
             "exclusiveMinimum": true
           },
-          "near_tie_margin": {
-            "type": "number",
-            "minimum": 0
-          },
           "default_question_weight": {
             "type": "number",
             "minimum": 0,
@@ -695,8 +969,10 @@
             "type": "string",
             "enum": [
               "IN_PROGRESS",
+              "SUBMITTED",
               "SCORED",
-              "INCOMPLETE"
+              "INCOMPLETE",
+              "EXPIRED"
             ]
           },
           "current_index": {
@@ -868,8 +1144,10 @@
             "type": "string",
             "enum": [
               "IN_PROGRESS",
+              "SUBMITTED",
               "SCORED",
-              "INCOMPLETE"
+              "INCOMPLETE",
+              "EXPIRED"
             ]
           },
           "message": {
@@ -888,10 +1166,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -922,10 +1202,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -943,7 +1225,7 @@
               "score_0_100"
             ]
           },
-          "near_tie": {
+          "tie": {
             "type": "boolean"
           },
           "scoring_version": {
@@ -965,10 +1247,12 @@
                   "enum": [
                     "LING",
                     "LOGI",
-                    "SPAT",
+                    "VIS",
                     "MUSI",
                     "BODY",
-                    "NATU"
+                    "NAT",
+                    "INTER",
+                    "INTRA"
                   ]
                 },
                 "pathway_name": {
@@ -1009,7 +1293,7 @@
           "message",
           "primary",
           "secondary",
-          "near_tie",
+          "tie",
           "scoring_version",
           "answered_count",
           "timed_out_count",
@@ -1041,7 +1325,7 @@
           "scoring_version": {
             "type": "string"
           },
-          "near_tie": {
+          "tie": {
             "type": "boolean"
           },
           "dominant": {
@@ -1056,10 +1340,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -1089,10 +1375,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -1120,10 +1408,12 @@
                   "enum": [
                     "LING",
                     "LOGI",
-                    "SPAT",
+                    "VIS",
                     "MUSI",
                     "BODY",
-                    "NATU"
+                    "NAT",
+                    "INTER",
+                    "INTRA"
                   ]
                 },
                 "pathway_name": {
@@ -1165,7 +1455,7 @@
           "is_current",
           "created_at",
           "scoring_version",
-          "near_tie",
+          "tie",
           "dominant",
           "secondary",
           "scores"
@@ -1196,7 +1486,7 @@
           "scoring_version": {
             "type": "string"
           },
-          "near_tie": {
+          "tie": {
             "type": "boolean"
           },
           "dominant": {
@@ -1211,10 +1501,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -1244,10 +1536,12 @@
                 "enum": [
                   "LING",
                   "LOGI",
-                  "SPAT",
+                  "VIS",
                   "MUSI",
                   "BODY",
-                  "NATU"
+                  "NAT",
+                  "INTER",
+                  "INTRA"
                 ]
               },
               "name": {
@@ -1273,15 +1567,177 @@
           "is_current",
           "created_at",
           "scoring_version",
-          "near_tie",
+          "tie",
           "dominant",
           "secondary"
+        ]
+      },
+      "StudentAssessmentAccess": {
+        "type": "object",
+        "properties": {
+          "can_take_assessment": {
+            "type": "boolean"
+          },
+          "has_completed_assessment": {
+            "type": "boolean"
+          },
+          "has_in_progress_attempt": {
+            "type": "boolean"
+          },
+          "retake_authorized": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "can_take_assessment",
+          "has_completed_assessment",
+          "has_in_progress_attempt",
+          "retake_authorized"
+        ]
+      },
+      "ManagedAssessmentStudent": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "grade": {
+            "type": "integer"
+          },
+          "class_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "has_completed_assessment": {
+            "type": "boolean"
+          },
+          "has_in_progress_attempt": {
+            "type": "boolean"
+          },
+          "retake_authorized": {
+            "type": "boolean"
+          },
+          "latest_attempt_status": {
+            "type": "string",
+            "nullable": true
+          },
+          "can_manage_retake": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "student_id",
+          "name",
+          "username",
+          "grade",
+          "class_name",
+          "has_completed_assessment",
+          "has_in_progress_attempt",
+          "retake_authorized",
+          "latest_attempt_status",
+          "can_manage_retake"
+        ]
+      },
+      "AssessmentRetakeActionResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "granted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "message"
         ]
       }
     },
     "parameters": {}
   },
   "paths": {
+    "/api/v1/auth/registration-options": {
+      "get": {
+        "summary": "Get school and class options for registration",
+        "responses": {
+          "200": {
+            "description": "Available schools and classes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ]
+                      }
+                    },
+                    "classes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "school_id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "grade": {
+                            "type": "integer"
+                          },
+                          "section": {
+                            "type": "string"
+                          },
+                          "academic_year": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "school_id",
+                          "grade",
+                          "section",
+                          "academic_year"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "schools",
+                    "classes"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "summary": "Create student account",
@@ -1305,10 +1761,45 @@
                     "type": "string",
                     "minLength": 6
                   },
+                  "email": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          ""
+                        ]
+                      }
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "maxLength": 30
+                  },
+                  "location": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
                   "grade": {
                     "type": "integer",
                     "minimum": 6,
                     "maximum": 8
+                  },
+                  "school_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "class_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "admission_number": {
+                    "type": "string",
+                    "maxLength": 50
                   }
                 },
                 "required": [
@@ -1349,6 +1840,7 @@
                           "type": "string",
                           "enum": [
                             "STUDENT",
+                            "TEACHER",
                             "ADMIN"
                           ]
                         },
@@ -1530,6 +2022,7 @@
                           "type": "string",
                           "enum": [
                             "STUDENT",
+                            "TEACHER",
                             "ADMIN"
                           ]
                         },
@@ -1637,6 +2130,7 @@
                       "type": "string",
                       "enum": [
                         "STUDENT",
+                        "TEACHER",
                         "ADMIN"
                       ]
                     },
@@ -1735,8 +2229,10 @@
                       "type": "string",
                       "enum": [
                         "IN_PROGRESS",
+                        "SUBMITTED",
                         "SCORED",
-                        "INCOMPLETE"
+                        "INCOMPLETE",
+                        "EXPIRED"
                       ]
                     },
                     "current_index": {
@@ -2031,8 +2527,10 @@
                       "type": "string",
                       "enum": [
                         "IN_PROGRESS",
+                        "SUBMITTED",
                         "SCORED",
-                        "INCOMPLETE"
+                        "INCOMPLETE",
+                        "EXPIRED"
                       ]
                     },
                     "message": {
@@ -2051,10 +2549,12 @@
                           "enum": [
                             "LING",
                             "LOGI",
-                            "SPAT",
+                            "VIS",
                             "MUSI",
                             "BODY",
-                            "NATU"
+                            "NAT",
+                            "INTER",
+                            "INTRA"
                           ]
                         },
                         "name": {
@@ -2085,10 +2585,12 @@
                           "enum": [
                             "LING",
                             "LOGI",
-                            "SPAT",
+                            "VIS",
                             "MUSI",
                             "BODY",
-                            "NATU"
+                            "NAT",
+                            "INTER",
+                            "INTRA"
                           ]
                         },
                         "name": {
@@ -2106,7 +2608,7 @@
                         "score_0_100"
                       ]
                     },
-                    "near_tie": {
+                    "tie": {
                       "type": "boolean"
                     },
                     "scoring_version": {
@@ -2128,10 +2630,12 @@
                             "enum": [
                               "LING",
                               "LOGI",
-                              "SPAT",
+                              "VIS",
                               "MUSI",
                               "BODY",
-                              "NATU"
+                              "NAT",
+                              "INTER",
+                              "INTRA"
                             ]
                           },
                           "pathway_name": {
@@ -2172,7 +2676,7 @@
                     "message",
                     "primary",
                     "secondary",
-                    "near_tie",
+                    "tie",
                     "scoring_version",
                     "answered_count",
                     "timed_out_count",
@@ -2190,6 +2694,48 @@
           },
           "403": {
             "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/students/me/assessment-access": {
+      "get": {
+        "summary": "Check the current student assessment eligibility",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether the student can start or resume an assessment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "can_take_assessment": {
+                      "type": "boolean"
+                    },
+                    "has_completed_assessment": {
+                      "type": "boolean"
+                    },
+                    "has_in_progress_attempt": {
+                      "type": "boolean"
+                    },
+                    "retake_authorized": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "can_take_assessment",
+                    "has_completed_assessment",
+                    "has_in_progress_attempt",
+                    "retake_authorized"
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -2232,7 +2778,7 @@
                     "scoring_version": {
                       "type": "string"
                     },
-                    "near_tie": {
+                    "tie": {
                       "type": "boolean"
                     },
                     "dominant": {
@@ -2247,10 +2793,12 @@
                           "enum": [
                             "LING",
                             "LOGI",
-                            "SPAT",
+                            "VIS",
                             "MUSI",
                             "BODY",
-                            "NATU"
+                            "NAT",
+                            "INTER",
+                            "INTRA"
                           ]
                         },
                         "name": {
@@ -2280,10 +2828,12 @@
                           "enum": [
                             "LING",
                             "LOGI",
-                            "SPAT",
+                            "VIS",
                             "MUSI",
                             "BODY",
-                            "NATU"
+                            "NAT",
+                            "INTER",
+                            "INTRA"
                           ]
                         },
                         "name": {
@@ -2311,10 +2861,12 @@
                             "enum": [
                               "LING",
                               "LOGI",
-                              "SPAT",
+                              "VIS",
                               "MUSI",
                               "BODY",
-                              "NATU"
+                              "NAT",
+                              "INTER",
+                              "INTRA"
                             ]
                           },
                           "pathway_name": {
@@ -2356,7 +2908,7 @@
                     "is_current",
                     "created_at",
                     "scoring_version",
-                    "near_tie",
+                    "tie",
                     "dominant",
                     "secondary",
                     "scores"
@@ -2367,6 +2919,420 @@
           },
           "404": {
             "description": "Profile not found"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/teachers": {
+      "get": {
+        "summary": "List teacher accounts",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Teacher account list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "phone": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "location": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "school_name": {
+                        "type": "string"
+                      },
+                      "employee_number": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "is_active": {
+                        "type": "boolean"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "username",
+                      "email",
+                      "phone",
+                      "location",
+                      "school_name",
+                      "employee_number",
+                      "is_active",
+                      "created_at"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a teacher account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 50
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "email": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          ""
+                        ]
+                      }
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "maxLength": 30
+                  },
+                  "location": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "school_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "new_school": {
+                    "type": "object",
+                    "properties": {
+                      "school_name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 150
+                      },
+                      "address": {
+                        "type": "string",
+                        "maxLength": 250
+                      },
+                      "city": {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      "district": {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      "state": {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      "pincode": {
+                        "type": "string",
+                        "maxLength": 20
+                      }
+                    },
+                    "required": [
+                      "school_name"
+                    ]
+                  },
+                  "employee_number": {
+                    "type": "string",
+                    "maxLength": 50
+                  }
+                },
+                "required": [
+                  "name",
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Teacher account created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "school_name": {
+                      "type": "string"
+                    },
+                    "employee_number": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "is_active": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "username",
+                    "email",
+                    "phone",
+                    "location",
+                    "school_name",
+                    "employee_number",
+                    "is_active",
+                    "created_at"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username already exists"
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-access/students": {
+      "get": {
+        "summary": "List students and their assessment access for a teacher",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assigned students and their retake authorization state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "student_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "grade": {
+                        "type": "integer"
+                      },
+                      "class_name": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "has_completed_assessment": {
+                        "type": "boolean"
+                      },
+                      "has_in_progress_attempt": {
+                        "type": "boolean"
+                      },
+                      "retake_authorized": {
+                        "type": "boolean"
+                      },
+                      "latest_attempt_status": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "can_manage_retake": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "student_id",
+                      "name",
+                      "username",
+                      "grade",
+                      "class_name",
+                      "has_completed_assessment",
+                      "has_in_progress_attempt",
+                      "retake_authorized",
+                      "latest_attempt_status",
+                      "can_manage_retake"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assessment-access/students/{student_id}/retake-access": {
+      "post": {
+        "summary": "Authorize one retake after a student has completed an assessment (teacher only)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "student_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One-use retake authorization created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "granted_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Staff member is not assigned to this student"
+          },
+          "409": {
+            "description": "Student has not completed an assessment"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Revoke an unused retake authorization (teacher only)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "student_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unused authorization revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "granted_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Staff member is not assigned to this student"
+          },
+          "404": {
+            "description": "No unused authorization exists"
           }
         }
       }
@@ -2411,7 +3377,7 @@
                       "scoring_version": {
                         "type": "string"
                       },
-                      "near_tie": {
+                      "tie": {
                         "type": "boolean"
                       },
                       "dominant": {
@@ -2426,10 +3392,12 @@
                             "enum": [
                               "LING",
                               "LOGI",
-                              "SPAT",
+                              "VIS",
                               "MUSI",
                               "BODY",
-                              "NATU"
+                              "NAT",
+                              "INTER",
+                              "INTRA"
                             ]
                           },
                           "name": {
@@ -2459,10 +3427,12 @@
                             "enum": [
                               "LING",
                               "LOGI",
-                              "SPAT",
+                              "VIS",
                               "MUSI",
                               "BODY",
-                              "NATU"
+                              "NAT",
+                              "INTER",
+                              "INTRA"
                             ]
                           },
                           "name": {
@@ -2488,7 +3458,7 @@
                       "is_current",
                       "created_at",
                       "scoring_version",
-                      "near_tie",
+                      "tie",
                       "dominant",
                       "secondary"
                     ]
@@ -2588,10 +3558,12 @@
                         "enum": [
                           "LING",
                           "LOGI",
-                          "SPAT",
+                          "VIS",
                           "MUSI",
                           "BODY",
-                          "NATU"
+                          "NAT",
+                          "INTER",
+                          "INTRA"
                         ]
                       },
                       "options": {
@@ -2612,6 +3584,16 @@
                             "order_index": {
                               "type": "integer"
                             },
+                            "vark_type": {
+                              "type": "string",
+                              "nullable": true,
+                              "enum": [
+                                "V",
+                                "A",
+                                "R",
+                                "K"
+                              ]
+                            },
                             "pathway_contributions": {
                               "type": "array",
                               "items": {
@@ -2622,16 +3604,19 @@
                                     "enum": [
                                       "LING",
                                       "LOGI",
-                                      "SPAT",
+                                      "VIS",
                                       "MUSI",
                                       "BODY",
-                                      "NATU"
+                                      "NAT",
+                                      "INTER",
+                                      "INTRA"
                                     ]
                                   },
                                   "contribution": {
                                     "type": "number",
-                                    "minimum": 0,
-                                    "maximum": 1
+                                    "enum": [
+                                      1
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -2727,10 +3712,12 @@
                     "enum": [
                       "LING",
                       "LOGI",
-                      "SPAT",
+                      "VIS",
                       "MUSI",
                       "BODY",
-                      "NATU"
+                      "NAT",
+                      "INTER",
+                      "INTRA"
                     ]
                   },
                   "options": {
@@ -2750,6 +3737,16 @@
                           "type": "integer",
                           "default": 0
                         },
+                        "vark_type": {
+                          "type": "string",
+                          "nullable": true,
+                          "enum": [
+                            "V",
+                            "A",
+                            "R",
+                            "K"
+                          ]
+                        },
                         "pathway_contributions": {
                           "type": "array",
                           "items": {
@@ -2760,16 +3757,19 @@
                                 "enum": [
                                   "LING",
                                   "LOGI",
-                                  "SPAT",
+                                  "VIS",
                                   "MUSI",
                                   "BODY",
-                                  "NATU"
+                                  "NAT",
+                                  "INTER",
+                                  "INTRA"
                                 ]
                               },
                               "contribution": {
                                 "type": "number",
-                                "minimum": 0,
-                                "maximum": 1
+                                "enum": [
+                                  1
+                                ]
                               }
                             },
                             "required": [
@@ -2875,10 +3875,12 @@
                       "enum": [
                         "LING",
                         "LOGI",
-                        "SPAT",
+                        "VIS",
                         "MUSI",
                         "BODY",
-                        "NATU"
+                        "NAT",
+                        "INTER",
+                        "INTRA"
                       ]
                     },
                     "options": {
@@ -2899,6 +3901,16 @@
                           "order_index": {
                             "type": "integer"
                           },
+                          "vark_type": {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              "V",
+                              "A",
+                              "R",
+                              "K"
+                            ]
+                          },
                           "pathway_contributions": {
                             "type": "array",
                             "items": {
@@ -2909,16 +3921,19 @@
                                   "enum": [
                                     "LING",
                                     "LOGI",
-                                    "SPAT",
+                                    "VIS",
                                     "MUSI",
                                     "BODY",
-                                    "NATU"
+                                    "NAT",
+                                    "INTER",
+                                    "INTRA"
                                   ]
                                 },
                                 "contribution": {
                                   "type": "number",
-                                  "minimum": 0,
-                                  "maximum": 1
+                                  "enum": [
+                                    1
+                                  ]
                                 }
                               },
                               "required": [
@@ -3012,10 +4027,12 @@
                     "enum": [
                       "LING",
                       "LOGI",
-                      "SPAT",
+                      "VIS",
                       "MUSI",
                       "BODY",
-                      "NATU"
+                      "NAT",
+                      "INTER",
+                      "INTRA"
                     ]
                   },
                   "options": {
@@ -3035,6 +4052,16 @@
                           "type": "integer",
                           "default": 0
                         },
+                        "vark_type": {
+                          "type": "string",
+                          "nullable": true,
+                          "enum": [
+                            "V",
+                            "A",
+                            "R",
+                            "K"
+                          ]
+                        },
                         "pathway_contributions": {
                           "type": "array",
                           "items": {
@@ -3045,16 +4072,19 @@
                                 "enum": [
                                   "LING",
                                   "LOGI",
-                                  "SPAT",
+                                  "VIS",
                                   "MUSI",
                                   "BODY",
-                                  "NATU"
+                                  "NAT",
+                                  "INTER",
+                                  "INTRA"
                                 ]
                               },
                               "contribution": {
                                 "type": "number",
-                                "minimum": 0,
-                                "maximum": 1
+                                "enum": [
+                                  1
+                                ]
                               }
                             },
                             "required": [
@@ -3154,10 +4184,12 @@
                       "enum": [
                         "LING",
                         "LOGI",
-                        "SPAT",
+                        "VIS",
                         "MUSI",
                         "BODY",
-                        "NATU"
+                        "NAT",
+                        "INTER",
+                        "INTRA"
                       ]
                     },
                     "options": {
@@ -3178,6 +4210,16 @@
                           "order_index": {
                             "type": "integer"
                           },
+                          "vark_type": {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              "V",
+                              "A",
+                              "R",
+                              "K"
+                            ]
+                          },
                           "pathway_contributions": {
                             "type": "array",
                             "items": {
@@ -3188,16 +4230,19 @@
                                   "enum": [
                                     "LING",
                                     "LOGI",
-                                    "SPAT",
+                                    "VIS",
                                     "MUSI",
                                     "BODY",
-                                    "NATU"
+                                    "NAT",
+                                    "INTER",
+                                    "INTRA"
                                   ]
                                 },
                                 "contribution": {
                                   "type": "number",
-                                  "minimum": 0,
-                                  "maximum": 1
+                                  "enum": [
+                                    1
+                                  ]
                                 }
                               },
                               "required": [
@@ -3387,10 +4432,12 @@
                       "enum": [
                         "LING",
                         "LOGI",
-                        "SPAT",
+                        "VIS",
                         "MUSI",
                         "BODY",
-                        "NATU"
+                        "NAT",
+                        "INTER",
+                        "INTRA"
                       ]
                     },
                     "options": {
@@ -3411,6 +4458,16 @@
                           "order_index": {
                             "type": "integer"
                           },
+                          "vark_type": {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              "V",
+                              "A",
+                              "R",
+                              "K"
+                            ]
+                          },
                           "pathway_contributions": {
                             "type": "array",
                             "items": {
@@ -3421,16 +4478,19 @@
                                   "enum": [
                                     "LING",
                                     "LOGI",
-                                    "SPAT",
+                                    "VIS",
                                     "MUSI",
                                     "BODY",
-                                    "NATU"
+                                    "NAT",
+                                    "INTER",
+                                    "INTRA"
                                   ]
                                 },
                                 "contribution": {
                                   "type": "number",
-                                  "minimum": 0,
-                                  "maximum": 1
+                                  "enum": [
+                                    1
+                                  ]
                                 }
                               },
                               "required": [
@@ -3567,10 +4627,12 @@
                       "enum": [
                         "LING",
                         "LOGI",
-                        "SPAT",
+                        "VIS",
                         "MUSI",
                         "BODY",
-                        "NATU"
+                        "NAT",
+                        "INTER",
+                        "INTRA"
                       ]
                     },
                     "options": {
@@ -3591,6 +4653,16 @@
                           "order_index": {
                             "type": "integer"
                           },
+                          "vark_type": {
+                            "type": "string",
+                            "nullable": true,
+                            "enum": [
+                              "V",
+                              "A",
+                              "R",
+                              "K"
+                            ]
+                          },
                           "pathway_contributions": {
                             "type": "array",
                             "items": {
@@ -3601,16 +4673,19 @@
                                   "enum": [
                                     "LING",
                                     "LOGI",
-                                    "SPAT",
+                                    "VIS",
                                     "MUSI",
                                     "BODY",
-                                    "NATU"
+                                    "NAT",
+                                    "INTER",
+                                    "INTRA"
                                   ]
                                 },
                                 "contribution": {
                                   "type": "number",
-                                  "minimum": 0,
-                                  "maximum": 1
+                                  "enum": [
+                                    1
+                                  ]
                                 }
                               },
                               "required": [
@@ -3697,10 +4772,6 @@
                       "minimum": 0,
                       "exclusiveMinimum": true
                     },
-                    "near_tie_margin": {
-                      "type": "number",
-                      "minimum": 0
-                    },
                     "default_question_weight": {
                       "type": "number",
                       "minimum": 0,
@@ -3725,7 +4796,6 @@
                     "scenario_limit_seconds",
                     "grace_period_seconds",
                     "min_answered_count",
-                    "near_tie_margin",
                     "default_question_weight",
                     "scoring_formula_version",
                     "is_active"
@@ -3776,10 +4846,6 @@
                     "type": "integer",
                     "minimum": 0,
                     "exclusiveMinimum": true
-                  },
-                  "near_tie_margin": {
-                    "type": "number",
-                    "minimum": 0
                   },
                   "default_question_weight": {
                     "type": "number",
@@ -3836,10 +4902,6 @@
                       "minimum": 0,
                       "exclusiveMinimum": true
                     },
-                    "near_tie_margin": {
-                      "type": "number",
-                      "minimum": 0
-                    },
                     "default_question_weight": {
                       "type": "number",
                       "minimum": 0,
@@ -3864,7 +4926,6 @@
                     "scenario_limit_seconds",
                     "grace_period_seconds",
                     "min_answered_count",
-                    "near_tie_margin",
                     "default_question_weight",
                     "scoring_formula_version",
                     "is_active"
