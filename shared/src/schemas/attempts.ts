@@ -71,7 +71,7 @@ export const SubmitAttemptResponseDTO = z.object({
   message: z.string(),
   primary: PathwayIdentityDTO.nullable(),
   secondary: PathwayIdentityDTO.nullable(),
-  near_tie: z.boolean(),
+  tie: z.boolean(),
   scoring_version: z.string(),
   answered_count: z.number().int(),
   timed_out_count: z.number().int(),

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import { LikertQuestion } from '../components/QuestionRenderer/LikertQuestion';
-import { Compass, CheckCircle2, Clock, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import { Brain, CheckCircle2, Clock, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
 
 export const InstructionsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export const InstructionsPage: React.FC = () => {
       <div className="card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ display: 'inline-flex', padding: '0.75rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '0.75rem' }}>
-            <Compass size={36} />
+            <Brain size={36} />
           </div>
           <h1 className="card-title" style={{ fontSize: '2rem' }}>Learning Preference Assessment</h1>
           <p className="card-subtitle" style={{ fontSize: '1.05rem' }}>
@@ -50,10 +50,10 @@ export const InstructionsPage: React.FC = () => {
           <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4f46e5', fontWeight: 700, marginBottom: '0.5rem' }}>
               <Sparkles size={20} />
-              <span>18 Questions</span>
+              <span>40 Questions</span>
             </div>
             <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
-              6 quick preference statements + 12 fun learning scenarios from science and history.
+              24 quick preference statements + 16 scenario based questions.
             </p>
           </div>
 
@@ -83,16 +83,16 @@ export const InstructionsPage: React.FC = () => {
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>How it works:</h2>
           <ul style={{ paddingLeft: '1.25rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.95rem' }}>
             <li>
-              <strong>Self-Report Questions (1 to 6):</strong> Rate how much you agree with statements using the 5 emoji buttons (Strongly Disagree to Strongly Agree).
+              <strong>Self-Report Questions (1 to 24):</strong> Rate how much you agree with statements using the 5 emoji buttons (Strongly Disagree to Strongly Agree).
             </li>
             <li>
-              <strong>Scenario Questions (7 to 18):</strong> Imagine yourself in class and pick the activity you would prefer to do.
+              <strong>Scenario Questions (25 to 40):</strong> Imagine yourself in class and pick the activity you would prefer to do.
             </li>
             <li>
               <strong>Safe Progress:</strong> Every answer is saved automatically to the server as soon as you choose. If your connection drops, refreshing returns you to your current question.
             </li>
             <li>
-              <strong>Profile Outcome:</strong> When you complete at least 15 questions, your indicative learning-preference profile will highlight your primary and secondary pathways!
+              <strong>Profile Outcome:</strong> When you complete at least 20 questions, your indicative learning-preference profile will highlight your primary and secondary pathways!
             </li>
           </ul>
         </div>

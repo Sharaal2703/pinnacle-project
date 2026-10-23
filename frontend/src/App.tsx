@@ -7,15 +7,22 @@ import { RegisterPage } from './pages/RegisterPage';
 import { InstructionsPage } from './pages/InstructionsPage';
 import { AssessmentPage } from './pages/AssessmentPage';
 import { ResultPage } from './pages/ResultPage';
-import { IncompletePage } from './pages/IncompletePage';
+import { AssessmentIncompletePage } from './pages/AssessmentIncompletePage';
 import { ProfileHistoryPage } from './pages/ProfileHistoryPage';
-import { AdminPage } from './pages/AdminPage';
+import { AdminAssessmentPage } from './pages/AdminAssessmentPage';
+import { TeacherStudentsPage } from './pages/TeacherStudentsPage';
+import { TeacherAccountsPage } from './pages/TeacherAccountsPage';
+import { LearningLibraryPage } from './pages/LearningLibraryPage';
+import { LearningChapterPage } from './pages/LearningChapterPage';
+import { TeacherLearningReviewPage } from './pages/TeacherLearningReviewPage';
+import { AdminLearningResourcesPage } from './pages/AdminLearningResourcesPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { api } from './api/client';
 import type { Role } from '@pinnacle/shared';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
-  requiredRole?: Role;
+  requiredRole?: Role | Role[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
@@ -33,10 +40,42 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to={user?.role === 'ADMIN' ? '/admin' : '/instructions'} replace />;
+  const requiredRoles = requiredRole ? (Array.isArray(requiredRole) ? requiredRole : [requiredRole]) : null;
+  if (requiredRoles && (!user || !requiredRoles.includes(user.role))) {
+    const destination = user?.role === 'ADMIN' ? '/admin' : user?.role === 'TEACHER' ? '/teacher/access' : '/result';
+    return <Navigate to={destination} replace />;
   }
 
+  return children;
+};
+
+const AssessmentAccessRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const [canTake, setCanTake] = React.useState<boolean | null>(null);
+  const [error, setError] = React.useState(false);
+
+  const checkAccess = React.useCallback(() => {
+    setCanTake(null);
+    setError(false);
+    api.getAssessmentAccess()
+      .then((access) => setCanTake(access.can_take_assessment))
+      .catch(() => { setCanTake(false); setError(true); });
+  }, []);
+
+  React.useEffect(() => { checkAccess(); }, [checkAccess]);
+
+  if (canTake === null) {
+    return <div className="access-state">Checking assessment access…</div>;
+  }
+  if (error) {
+    return (
+      <div className="card access-state">
+        <h2>Could not check assessment access</h2>
+        <p>Please check your connection and try again.</p>
+        <button type="button" className="btn btn-primary" onClick={checkAccess}>Retry</button>
+      </div>
+    );
+  }
+  if (!canTake) return <Navigate to="/result" replace />;
   return children;
 };
 
@@ -46,6 +85,7 @@ const HomeRedirect: React.FC = () => {
   if (isLoading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user?.role === 'ADMIN') return <Navigate to="/admin" replace />;
+  if (user?.role === 'TEACHER') return <Navigate to="/teacher/access" replace />;
   return <Navigate to="/instructions" replace />;
 };
 
@@ -64,11 +104,15 @@ export const App: React.FC = () => {
               <Route path="/register" element={<RegisterPage />} />
 
               {/* Student Routes */}
+              <Route path="/learning" element={<ProtectedRoute requiredRole="STUDENT"><LearningLibraryPage /></ProtectedRoute>} />
+              <Route path="/learning/chapters/:chapterId" element={<ProtectedRoute requiredRole="STUDENT"><LearningChapterPage /></ProtectedRoute>} />
+              <Route path="/teacher/learning-review" element={<ProtectedRoute requiredRole="TEACHER"><TeacherLearningReviewPage /></ProtectedRoute>} />
+              <Route path="/admin/learning-resources" element={<ProtectedRoute requiredRole="ADMIN"><AdminLearningResourcesPage /></ProtectedRoute>} />
               <Route
                 path="/instructions"
                 element={
                   <ProtectedRoute requiredRole="STUDENT">
-                    <InstructionsPage />
+                    <AssessmentAccessRoute><InstructionsPage /></AssessmentAccessRoute>
                   </ProtectedRoute>
                 }
               />
@@ -76,7 +120,7 @@ export const App: React.FC = () => {
                 path="/assessment"
                 element={
                   <ProtectedRoute requiredRole="STUDENT">
-                    <AssessmentPage />
+                    <AssessmentAccessRoute><AssessmentPage /></AssessmentAccessRoute>
                   </ProtectedRoute>
                 }
               />
@@ -92,7 +136,7 @@ export const App: React.FC = () => {
                 path="/incomplete"
                 element={
                   <ProtectedRoute requiredRole="STUDENT">
-                    <IncompletePage />
+                    <AssessmentIncompletePage />
                   </ProtectedRoute>
                 }
               />
@@ -107,10 +151,26 @@ export const App: React.FC = () => {
 
               {/* Admin Routes */}
               <Route
+                path="/teacher/access"
+                element={
+                  <ProtectedRoute requiredRole="TEACHER">
+                    <TeacherStudentsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/teachers"
+                element={
+                  <ProtectedRoute requiredRole="ADMIN">
+                    <TeacherAccountsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin"
                 element={
                   <ProtectedRoute requiredRole="ADMIN">
-                    <AdminPage />
+                    <AdminAssessmentPage />
                   </ProtectedRoute>
                 }
               />

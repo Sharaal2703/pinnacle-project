@@ -1,6 +1,6 @@
 import { PathwayCode, QuestionType } from '@prisma/client';
 
-export const PATHWAY_ORDER: PathwayCode[] = ['LING', 'LOGI', 'SPAT', 'MUSI', 'BODY', 'NATU'];
+export const PATHWAY_ORDER: PathwayCode[] = ['LING', 'LOGI', 'VIS', 'MUSI', 'BODY', 'NAT', 'INTER', 'INTRA'];
 
 export interface QuestionScoringItem {
   questionId: string;
@@ -16,6 +16,7 @@ export interface QuestionScoringItem {
 export interface AnswerResponseItem {
   questionId: string;
   timedOut: boolean;
+  timeTakenMs?: number | null;
   rating?: number | null; // 1..5 for self-report
   optionId?: string | null; // for scenario
 }
@@ -38,17 +39,19 @@ export interface AssessmentScoringOutcome {
   scores: PathwayScoreResult[];
   dominant: PathwayScoreResult | null;
   secondary: PathwayScoreResult | null;
-  nearTie: boolean;
+  tie: boolean;
 }
 
 export class ScoringEngine {
   private static PATHWAY_NAMES: Record<PathwayCode, string> = {
     LING: 'Linguistic',
     LOGI: 'Logical-Mathematical',
-    SPAT: 'Spatial/Visual',
+    VIS: 'Visual',
     MUSI: 'Musical',
     BODY: 'Bodily-Kinesthetic',
-    NATU: 'Naturalistic'
+    NAT: 'Naturalistic',
+    INTER: 'Interpersonal',
+    INTRA: 'Intrapersonal'
   };
 
   /**
@@ -67,8 +70,7 @@ export class ScoringEngine {
   static scoreAttempt(
     questions: QuestionScoringItem[],
     responses: AnswerResponseItem[],
-    minAnsweredThreshold = 15,
-    nearTieMargin = 5.0
+    minAnsweredThreshold = 15
   ): AssessmentScoringOutcome {
     const responseMap = new Map<string, AnswerResponseItem>();
     for (const r of responses) {
@@ -82,19 +84,31 @@ export class ScoringEngine {
     const rawScores: Record<PathwayCode, number> = {
       LING: 0,
       LOGI: 0,
-      SPAT: 0,
+      VIS: 0,
       MUSI: 0,
       BODY: 0,
-      NATU: 0
+      NAT: 0,
+      INTER: 0,
+      INTRA: 0
     };
 
     const maxScores: Record<PathwayCode, number> = {
       LING: 0,
       LOGI: 0,
-      SPAT: 0,
+      VIS: 0,
       MUSI: 0,
       BODY: 0,
-      NATU: 0
+      NAT: 0,
+      INTER: 0,
+      INTRA: 0
+    };
+    const responseTimeTotal: Partial<Record<PathwayCode, number>> = {};
+    const responseTimeCount: Partial<Record<PathwayCode, number>> = {};
+
+    const recordResponseTime = (pathwayCode: PathwayCode, timeTakenMs: number | null | undefined) => {
+      if (timeTakenMs == null || !Number.isFinite(timeTakenMs) || timeTakenMs < 0) return;
+      responseTimeTotal[pathwayCode] = (responseTimeTotal[pathwayCode] ?? 0) + timeTakenMs;
+      responseTimeCount[pathwayCode] = (responseTimeCount[pathwayCode] ?? 0) + 1;
     };
 
     for (const q of questions) {
@@ -116,32 +130,30 @@ export class ScoringEngine {
           if (!isTimedOut && resp && resp.rating != null) {
             const rw = this.evaluateSelfReport(resp.rating);
             rawScores[pw] += q.weight * rw;
+            recordResponseTime(pw, resp.timeTakenMs);
           }
         }
       } else if (q.type === 'SCENARIO') {
         // In scenario questions, find which pathways are selectable
-        const pathwayMaxMap: Partial<Record<PathwayCode, number>> = {};
+        const pathwayMaxSet = new Set<PathwayCode>();
         for (const opt of q.options || []) {
           for (const c of opt.contributions) {
-            const current = pathwayMaxMap[c.pathwayCode] ?? 0;
-            if (c.contribution > current) {
-              pathwayMaxMap[c.pathwayCode] = c.contribution;
-            }
+            pathwayMaxSet.add(c.pathwayCode);
           }
         }
 
         // Add max possible weight for each pathway offered in this question
-        for (const pw of Object.keys(pathwayMaxMap) as PathwayCode[]) {
-          const maxContrib = pathwayMaxMap[pw] ?? 0;
-          maxScores[pw] += q.weight * maxContrib;
+        for (const pw of pathwayMaxSet) {
+          maxScores[pw] += q.weight;
         }
 
         // Calculate student's chosen option contribution
         if (!isTimedOut && resp && resp.optionId) {
           const chosenOpt = q.options?.find((o) => o.id === resp.optionId);
           if (chosenOpt) {
-            for (const c of chosenOpt.contributions) {
-              rawScores[c.pathwayCode] += q.weight * c.contribution;
+            for (const pw of new Set(chosenOpt.contributions.map((mapping) => mapping.pathwayCode))) {
+              rawScores[pw] += q.weight;
+              recordResponseTime(pw, resp.timeTakenMs);
             }
           }
         }
@@ -177,13 +189,20 @@ export class ScoringEngine {
       };
     });
 
-    // Rank scores descending:
-    // Ties broken by PATHWAY_ORDER priority (LING, LOGI, SPAT, MUSI, BODY, NATU)
+    const averageResponseTime = (pathwayCode: PathwayCode): number | null => {
+      const count = responseTimeCount[pathwayCode] ?? 0;
+      return count > 0 ? (responseTimeTotal[pathwayCode] ?? 0) / count : null;
+    };
+
+    // Rank by normalized score, then use the lower average response time for equal scores.
     const sorted = [...scoreList].sort((a, b) => {
-      const scoreA = a.score0To100 ?? -1;
-      const scoreB = b.score0To100 ?? -1;
-      if (scoreB !== scoreA) {
-        return scoreB - scoreA;
+      if (a.score0To100 !== b.score0To100) {
+        return (b.score0To100 ?? -1) - (a.score0To100 ?? -1);
+      }
+      if (a.score0To100 !== null) {
+        const timeA = averageResponseTime(a.pathwayCode);
+        const timeB = averageResponseTime(b.pathwayCode);
+        if (timeA !== null && timeB !== null && timeA !== timeB) return timeA - timeB;
       }
       return PATHWAY_ORDER.indexOf(a.pathwayCode) - PATHWAY_ORDER.indexOf(b.pathwayCode);
     });
@@ -198,15 +217,9 @@ export class ScoringEngine {
       rank: idx + 1
     }));
 
-    // Check near tie between dominant (ranked[0]) and secondary (ranked[1])
-    let nearTie = false;
-    if (rankedScores.length >= 2) {
-      const topScore = rankedScores[0].score0To100 ?? 0;
-      const secondScore = rankedScores[1].score0To100 ?? 0;
-      if (Math.abs(topScore - secondScore) <= nearTieMargin) {
-        nearTie = true;
-      }
-    }
+    const tie = rankedScores.length >= 2 &&
+      rankedScores[0].score0To100 !== null &&
+      rankedScores[0].score0To100 === rankedScores[1].score0To100;
 
     return {
       canIssueProfile,
@@ -216,7 +229,7 @@ export class ScoringEngine {
       scores: rankedScores,
       dominant: canIssueProfile ? rankedScores[0] : null,
       secondary: canIssueProfile ? rankedScores[1] : null,
-      nearTie: canIssueProfile ? nearTie : false
+      tie: canIssueProfile ? tie : false
     };
   }
 }

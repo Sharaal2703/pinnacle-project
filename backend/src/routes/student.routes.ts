@@ -5,6 +5,13 @@ import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 const router = Router();
 
 router.get(
+  '/me/assessment-access',
+  authMiddleware,
+  requireRole('STUDENT'),
+  StudentController.getAssessmentAccess
+);
+
+router.get(
   '/me/preference-profile',
   authMiddleware,
   requireRole('STUDENT'),

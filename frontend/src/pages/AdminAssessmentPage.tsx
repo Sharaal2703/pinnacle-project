@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { api, ApiError } from '../api/client';
-import type { QuestionVersion, AssessmentConfig, PathwayCode, QuestionType, ReviewStatus } from '@pinnacle/shared';
+import { api } from '../api/client';
+import { SelectField } from '../components/SelectField';
+import type { QuestionVersion, PathwayCode, QuestionType } from '@pinnacle/shared';
 import {
   ShieldCheck,
   BookOpen,
   Settings,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Plus,
   RefreshCw,
@@ -14,7 +14,7 @@ import {
   FileCheck
 } from 'lucide-react';
 
-export const AdminPage: React.FC = () => {
+export const AdminAssessmentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'questions' | 'config'>('questions');
 
   // Questions State
@@ -42,15 +42,12 @@ export const AdminPage: React.FC = () => {
   const [isSubmittingNew, setIsSubmittingNew] = useState(false);
 
   // Config State
-  const [config, setConfig] = useState<AssessmentConfig | null>(null);
-  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
   const [configVersion, setConfigVersion] = useState('');
   const [totalLimit, setTotalLimit] = useState(1500);
   const [selfReportLimit, setSelfReportLimit] = useState(60);
   const [scenarioLimit, setScenarioLimit] = useState(90);
   const [gracePeriod, setGracePeriod] = useState(2);
   const [minAnswered, setMinAnswered] = useState(15);
-  const [nearTieMargin, setNearTieMargin] = useState(5.0);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
 
   useEffect(() => {
@@ -72,21 +69,16 @@ export const AdminPage: React.FC = () => {
   };
 
   const loadConfig = async () => {
-    setIsLoadingConfig(true);
     try {
       const cfg = await api.getAdminConfig();
-      setConfig(cfg);
       setConfigVersion(cfg.version);
       setTotalLimit(cfg.total_limit_seconds);
       setSelfReportLimit(cfg.self_report_limit_seconds);
       setScenarioLimit(cfg.scenario_limit_seconds);
       setGracePeriod(cfg.grace_period_seconds);
       setMinAnswered(cfg.min_answered_count);
-      setNearTieMargin(cfg.near_tie_margin);
     } catch (err: any) {
       setError(err?.message || 'Failed to load configuration.');
-    } finally {
-      setIsLoadingConfig(false);
     }
   };
 
@@ -146,7 +138,7 @@ export const AdminPage: React.FC = () => {
           newType === 'SCENARIO'
             ? [
                 { option_key: 'A', label: 'Option A (Story/Discussion)', order_index: 0, pathway_contributions: [{ pathway_code: 'LING', contribution: 1.0 }] },
-                { option_key: 'B', label: 'Option B (Visual diagram)', order_index: 1, pathway_contributions: [{ pathway_code: 'SPAT', contribution: 1.0 }] },
+                { option_key: 'B', label: 'Option B (Visual diagram)', order_index: 1, pathway_contributions: [{ pathway_code: 'VIS', contribution: 1.0 }] },
                 { option_key: 'C', label: 'Option C (Logic puzzle)', order_index: 2, pathway_contributions: [{ pathway_code: 'LOGI', contribution: 1.0 }] },
                 { option_key: 'D', label: 'Option D (Audio/song)', order_index: 3, pathway_contributions: [{ pathway_code: 'MUSI', contribution: 1.0 }] }
               ]
@@ -177,9 +169,7 @@ export const AdminPage: React.FC = () => {
         scenario_limit_seconds: Number(scenarioLimit),
         grace_period_seconds: Number(gracePeriod),
         min_answered_count: Number(minAnswered),
-        near_tie_margin: Number(nearTieMargin)
       });
-      setConfig(updated);
       setSuccessMsg(`Assessment configuration updated to v${updated.version}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to update configuration.');
@@ -300,30 +290,20 @@ export const AdminPage: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Type</label>
-                    <select
-                      className="form-select"
-                      value={newType}
-                      onChange={(e) => setNewType(e.target.value as QuestionType)}
-                    >
-                      <option value="SELF_REPORT">SELF_REPORT (1–5 scale)</option>
-                      <option value="SCENARIO">SCENARIO (Options A–D)</option>
-                    </select>
+                    <SelectField ariaLabel="Question type" value={newType} onChange={(value) => setNewType(value as QuestionType)} options={[
+                      { value: 'SELF_REPORT', label: 'SELF_REPORT (1–5 scale)' },
+                      { value: 'SCENARIO', label: 'SCENARIO (Options A–D)' }
+                    ]} />
                   </div>
                   {newType === 'SELF_REPORT' && (
                     <div className="form-group">
                       <label className="form-label">Target Pathway</label>
-                      <select
-                        className="form-select"
-                        value={newPathway}
-                        onChange={(e) => setNewPathway(e.target.value as PathwayCode)}
-                      >
-                        <option value="LING">Linguistic</option>
-                        <option value="LOGI">Logical-Mathematical</option>
-                        <option value="SPAT">Spatial/Visual</option>
-                        <option value="MUSI">Musical</option>
-                        <option value="BODY">Bodily-Kinesthetic</option>
-                        <option value="NATU">Naturalistic</option>
-                      </select>
+                      <SelectField ariaLabel="Target pathway" value={newPathway} onChange={(value) => setNewPathway(value as PathwayCode)} options={[
+                        { value: 'LING', label: 'Linguistic' }, { value: 'LOGI', label: 'Logical-Mathematical' },
+                        { value: 'VIS', label: 'Visual' }, { value: 'MUSI', label: 'Musical' },
+                        { value: 'BODY', label: 'Bodily-Kinesthetic' }, { value: 'NAT', label: 'Naturalistic' },
+                        { value: 'INTER', label: 'Interpersonal' }, { value: 'INTRA', label: 'Intrapersonal' }
+                      ]} />
                     </div>
                   )}
                   <div className="form-group">
@@ -382,7 +362,7 @@ export const AdminPage: React.FC = () => {
                 <tr>
                   <th scope="col">Key & Ver</th>
                   <th scope="col">Type</th>
-                  <th scope="col">Prompt</th>
+                  <th scope="col">Question</th>
                   <th scope="col">Review Status</th>
                   <th scope="col">Active</th>
                   <th scope="col">Actions</th>
@@ -493,14 +473,10 @@ export const AdminPage: React.FC = () => {
 
                   <div className="form-group">
                     <label className="form-label">Decision</label>
-                    <select
-                      className="form-select"
-                      value={reviewStatus}
-                      onChange={(e) => setReviewStatus(e.target.value as any)}
-                    >
-                      <option value="APPROVED">APPROVED — Ready for Middle School Students</option>
-                      <option value="REJECTED">REJECTED — Needs Modification</option>
-                    </select>
+                    <SelectField ariaLabel="Review decision" value={reviewStatus} onChange={(value) => setReviewStatus(value as any)} options={[
+                      { value: 'APPROVED', label: 'APPROVED — Ready for Middle School Students' },
+                      { value: 'REJECTED', label: 'REJECTED — Needs Modification' }
+                    ]} />
                   </div>
 
                   <div className="form-group">
@@ -618,27 +594,14 @@ export const AdminPage: React.FC = () => {
                   <input
                     type="number"
                     min="1"
-                    max="18"
+                    max="30"
                     className="form-input"
                     value={minAnswered}
                     onChange={(e) => setMinAnswered(Number(e.target.value))}
                   />
-                  <p className="form-hint">Minimum answered questions to issue profile (Default 15 of 18).</p>
+                  <p className="form-hint">Minimum answered questions to issue profile (Default 20 of 30).</p>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Near-Tie Margin (Points)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="20"
-                    className="form-input"
-                    value={nearTieMargin}
-                    onChange={(e) => setNearTieMargin(Number(e.target.value))}
-                  />
-                  <p className="form-hint">Scores within this margin are displayed as blended (Default 5.0).</p>
-                </div>
               </div>
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>

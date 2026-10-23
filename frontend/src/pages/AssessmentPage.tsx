@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../api/client';
 import { ProgressBar } from '../components/ProgressBar';
@@ -171,7 +171,7 @@ export const AssessmentPage: React.FC = () => {
       <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
         <RefreshCw className="spin" size={40} style={{ color: '#4f46e5', marginBottom: '1rem' }} />
         <h2>Calculating your learning preference profile...</h2>
-        <p style={{ color: '#64748b' }}>Analyzing your responses across 6 intelligence pathways</p>
+        <p style={{ color: '#64748b' }}>Analyzing your responses across 8 intelligence pathways</p>
       </div>
     );
   }
@@ -225,6 +225,7 @@ export const AssessmentPage: React.FC = () => {
       {/* Header with Timers and Progress */}
       <div className="assessment-header">
         <TimerDisplay
+          questionId={currentQuestion.question_id}
           questionRemainingSec={currentQuestion.question_remaining_seconds}
           assessmentRemainingSec={currentQuestion.assessment_remaining_seconds}
           onQuestionTimeout={handleQuestionTimeout}

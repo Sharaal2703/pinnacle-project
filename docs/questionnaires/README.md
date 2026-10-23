@@ -1,27 +1,42 @@
-# Pre-Assessment questionnaire files
+# Pre-assessment questionnaire files
 
-Store versioned Pre-Assessment question banks in this folder. The JSON file is the canonical import/seed input; the admin UI and database store versioned copies of approved questions for active attempts.
+Versioned JSON files in this directory are the canonical questionnaire bank inputs. Keep the selected source material in `selected/` and mapping/review drafts in `analysis/`. Do not overwrite a questionnaire version already used by an assessment attempt; create a new version instead.
 
-## Naming
+## Active question-bank shape
 
-Use one file per questionnaire version and language, for example:
+The updated MindBridge requirements specify 40 items for Grades 6–8:
 
-- `pre-assessment-v1-en.json`
-- `pre-assessment-v1-ta.json` if Tamil is included in scope
+- 24 self-report statements: three for each of the eight MI pathways.
+- 16 scenario questions: four preference options per question.
 
-Do not overwrite a version already used by an attempt. Add a new versioned file when wording, options, mappings, timing, or weights change.
+Use the pathway codes from the updated Design Documentation:
+
+| Code | Pathway |
+|---|---|
+| `LING` | Linguistic |
+| `LOGI` | Logical-Mathematical |
+| `VIS` | Spatial/Visual |
+| `MUSIC` | Musical |
+| `BODY` | Bodily-Kinesthetic |
+| `NAT` | Naturalistic |
+| `INTER` | Interpersonal |
+| `INTRA` | Intrapersonal |
 
 ## File shape
 
-Each file contains `questionnaire_id`, `language_code`, `version`, `grade_min`, `grade_max`, `review`, and `items`.
+Each file contains `questionnaire_id`, `language_code`, `version`, `grade_min`, `grade_max`, `session_time_limit_seconds`, `rating_labels`, `scoring_notes`, `sources`, `review`, and `items`.
 
-Each item contains a stable `key`, `type` (`SELF_REPORT` or `SCENARIO`), `prompt`, `weight`, `time_limit_seconds`, and either:
+Every item has a stable `key`, `type` (`SELF_REPORT` or `SCENARIO`), `prompt`, `weight`, `time_limit_seconds`, and a `source_id` referring to the top-level source catalog.
 
-- For `SELF_REPORT`: `pathway_code` and the fixed rating scale `[1, 2, 3, 4, 5]`.
-- For `SCENARIO`: `options`, each with a stable `key`, student-visible `label`, and `pathway_contributions` list of `{ "pathway_code", "contribution" }` values from 0 to 1.
+- Self-report items have `pathway_code`, `rating_scale` (`[1, 2, 3, 4, 5]`), and `source_item_number`.
+- Scenario items have four `options`. Each option has a stable `key`, student-facing `label`, a `vark_type` (`V`, `A`, `R`, or `K`) retained as separate source-analysis metadata, and `pathway_contributions` containing MI pathway codes and numeric contribution values from 0 to 1.
 
-The questionnaire-level `review` metadata is informational only. Importing a file always creates new question versions as `DRAFT` and inactive, regardless of its declared review status. An authorized administrator must record the external teacher review in the application and activate the approved version. Do not put a reviewer name/date in the file until a real review has occurred.
+The current selected bank assigns a 45-second per-item limit to self-report and a 75-second limit to scenarios. With 24 and 16 items respectively, these limits sum to 2,280 seconds (38 minutes). The server should measure answer time. VARK labels do not affect MI scores; response time is used only as the documented tie-breaker and does not change normalized scores.
 
-The intended bank shape is six self-report items (one per supported pathway) and twelve scenario items. Keep scenario option coverage balanced across all six pathways. The prompts currently in the sample JSON remain draft fixtures; they are not cleared for student use. Replace or confirm them with the user and an authorized teacher before recording approval in the application.
+## Scoring and review status
 
-Use original, age-appropriate wording. Do not copy textbook passages or external questionnaire wording. Preference questions need not quote curriculum content. Never store student answers, student names, or other personal data here.
+Self-report response factor is `(rating - 1) / 4`. In `pre-assessment-v2-en.json`, each scenario option's contribution is split equally over its proposed MI mappings. These weights are provisional and must be reviewed before the bank is approved.
+
+Questionnaire `review` metadata is informational only. Files must be imported as `DRAFT` and inactive; the file metadata does not authorize student use. An authorized reviewer must approve the question versions in the application before activation. The current file preserves selected source wording and proposed VARK-to-MI mappings; confirm reuse permissions or rewrite wording as needed before publication. Pilot-test the questions with the target grades and do not describe the resulting profile as a validated intelligence diagnosis.
+
+The existing `pre-assessment-v1-en.json` is a legacy six-pathway, 18-item bank. The revised pathway codes and 40-item bank require corresponding backend/shared-schema updates before `pre-assessment-v2-en.json` can be imported by the application.

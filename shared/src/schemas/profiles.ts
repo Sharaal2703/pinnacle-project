@@ -8,7 +8,7 @@ export const PreferenceProfileDTO = z.object({
   is_current: z.boolean(),
   created_at: z.string().datetime(),
   scoring_version: z.string(),
-  near_tie: z.boolean(),
+  tie: z.boolean(),
   dominant: PathwayIdentityDTO,
   secondary: PathwayIdentityDTO,
   scores: z.array(PathwayScoreRowDTO)
@@ -22,7 +22,7 @@ export const PreferenceProfileHistoryItemDTO = z.object({
   is_current: z.boolean(),
   created_at: z.string().datetime(),
   scoring_version: z.string(),
-  near_tie: z.boolean(),
+  tie: z.boolean(),
   dominant: PathwayIdentityDTO,
   secondary: PathwayIdentityDTO
 });

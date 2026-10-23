@@ -2,8 +2,6 @@
 
 The Pre-Assessment module uses PostgreSQL with Prisma. The backend reads `DATABASE_URL` from `backend/.env`; it can point to the cloud database or a local PostgreSQL container. The repository-root `.env` is used only by Docker Compose for its optional local database.
 
-## Requirements
-
 - Docker Desktop (or Docker Engine) with the Compose plugin.
 - A free local TCP port, `5432` by default.
 

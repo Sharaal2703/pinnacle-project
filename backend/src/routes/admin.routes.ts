@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller';
+import { TeacherAssignmentController } from '../controllers/teacher-assignment.controller';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 import { validateBody, validateParams } from '../middleware/validation.middleware';
 import {
   CreateQuestionInputSchema,
   UpdateQuestionInputSchema,
   ReviewQuestionInputSchema,
-  UpdateAssessmentConfigSchema
+  UpdateAssessmentConfigSchema,
+  CreateTeacherAccountSchema
 } from '@pinnacle/shared';
 import { z } from 'zod';
 
@@ -46,6 +48,11 @@ router.delete(
 );
 
 router.get('/assessment-config', AdminController.getConfig);
+router.get('/teachers', AdminController.listTeachers);
+router.post('/teachers', validateBody(CreateTeacherAccountSchema), AdminController.createTeacher);
+router.get('/teachers/:teacher_id/assignments', TeacherAssignmentController.list);
+router.post('/teachers/:teacher_id/assignments', TeacherAssignmentController.create);
+router.delete('/teachers/:teacher_id/assignments/:assignment_id', TeacherAssignmentController.remove);
 router.put(
   '/assessment-config',
   validateBody(UpdateAssessmentConfigSchema),

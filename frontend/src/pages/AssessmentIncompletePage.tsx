@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { AlertTriangle, RefreshCw, Compass } from 'lucide-react';
 
-export const IncompletePage: React.FC = () => {
+export const AssessmentIncompletePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const outcome = location.state?.outcome;
 
   const [isRetaking, setIsRetaking] = useState(false);
+  const [canTakeAssessment, setCanTakeAssessment] = useState(false);
+
+  useEffect(() => {
+    api.getAssessmentAccess()
+      .then((access) => setCanTakeAssessment(access.can_take_assessment))
+      .catch(() => setCanTakeAssessment(false));
+  }, []);
 
   const handleRetake = async () => {
     setIsRetaking(true);
@@ -51,10 +58,12 @@ export const IncompletePage: React.FC = () => {
         )}
 
         <p style={{ fontSize: '0.95rem', color: '#475569', marginBottom: '2rem' }}>
-          Don't worry! You can start a new attempt right now. Take your time to read each question, and tap your favorite answer before the timer runs out.
+          {canTakeAssessment
+            ? "Don't worry! You can start a new attempt right now. Take your time to read each question, and tap your favorite answer before the timer runs out."
+            : 'Another attempt requires authorization from your teacher. Please contact them to request access.'}
         </p>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        {canTakeAssessment && <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <button
             type="button"
             className="btn btn-primary btn-lg"
@@ -68,7 +77,7 @@ export const IncompletePage: React.FC = () => {
             <Compass size={20} />
             <span>Read Instructions</span>
           </Link>
-        </div>
+        </div>}
       </div>
     </div>
   );

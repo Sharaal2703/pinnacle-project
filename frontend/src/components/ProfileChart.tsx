@@ -33,8 +33,8 @@ const PATHWAY_CONFIG: Record<
     icon: '🧩',
     strategy: 'Flowcharts, cause-and-effect reasoning, structured formula problems, data tables, and logic puzzles.'
   },
-  SPAT: {
-    name: 'Spatial / Visual',
+  VIS: {
+    name: 'Visual',
     color: '#06b6d4',
     icon: '🗺️',
     strategy: 'Animated diagrams, 3D visual models, geographic maps, concept graphs, and visual color guides.'
@@ -51,11 +51,23 @@ const PATHWAY_CONFIG: Record<
     icon: '🛠️',
     strategy: 'Interactive drag-and-drop simulations, physical building tasks, gestures, and practical experiments.'
   },
-  NATU: {
+  NAT: {
     name: 'Naturalistic',
     color: '#10b981',
     icon: '🌿',
     strategy: 'Nature-based examples, living specimen observation, outdoor classification, and environmental connections.'
+  },
+  INTER: {
+    name: 'Interpersonal',
+    color: '#14b8a6',
+    icon: '🤝',
+    strategy: 'Collaborative problem solving, peer discussion, group explanations, and shared learning activities.'
+  },
+  INTRA: {
+    name: 'Intrapersonal',
+    color: '#6366f1',
+    icon: '🪞',
+    strategy: 'Self-paced practice, reflection prompts, personal goals, and independent learning choices.'
   }
 };
 
@@ -72,7 +84,7 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
   const safeScores = Array.isArray(scores) ? scores : [];
 
   // Order for radar chart polygon (clockwise fixed order)
-  const RADAR_ORDER = ['LING', 'LOGI', 'SPAT', 'MUSI', 'BODY', 'NATU'];
+  const RADAR_ORDER = ['LING', 'LOGI', 'VIS', 'MUSI', 'BODY', 'NAT', 'INTER', 'INTRA'];
 
   // Map scores by pathway code
   const scoreMap = new Map<string, PathwayScoreRow>();
@@ -189,7 +201,7 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
           <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.25rem', color: '#1e293b' }}>Multimodal Radar Profile</h3>
             <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
-              Spider polygon showing balance across the six modalities. Outer ring represents 100%.
+              Spider polygon showing balance across the eight intelligence pathways. Outer ring represents 100%.
             </p>
           </div>
 

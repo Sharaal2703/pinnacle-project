@@ -6,6 +6,7 @@ import { RegisterRequestSchema, LoginRequestSchema } from '@pinnacle/shared';
 
 const router = Router();
 
+router.get('/registration-options', AuthController.registrationOptions);
 router.post('/register', validateBody(RegisterRequestSchema), AuthController.register);
 router.post('/login', validateBody(LoginRequestSchema), AuthController.login);
 router.get('/me', authMiddleware, AuthController.me);

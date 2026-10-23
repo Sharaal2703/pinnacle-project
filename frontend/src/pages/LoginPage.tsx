@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
-import { LogIn, Compass, Info, AlertCircle } from 'lucide-react';
+import { LogIn, Brain, Info, AlertCircle } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -20,11 +20,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       const user = await login({ username: username.trim(), password });
-      if (user.role === 'ADMIN') {
-        navigate('/admin');
-      } else {
-        navigate('/instructions');
-      }
+      navigate(user.role === 'ADMIN' ? '/admin' : user.role === 'TEACHER' ? '/teacher/access' : '/instructions');
     } catch (err: any) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -47,7 +43,7 @@ export const LoginPage: React.FC = () => {
       <div className="card">
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ display: 'inline-flex', padding: '0.75rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '0.75rem' }}>
-            <Compass size={36} />
+            <Brain size={36} />
           </div>
           <h1 className="card-title">Welcome to MindBridge</h1>
           <p className="card-subtitle">Discover your personalized learning preferences</p>
@@ -84,7 +80,7 @@ export const LoginPage: React.FC = () => {
               className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter your password"
               autoComplete="current-password"
             />
           </div>

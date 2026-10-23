@@ -102,8 +102,8 @@ export const ProfileHistoryPage: React.FC = () => {
                     {item.is_current && (
                       <span className="badge-tag primary">Active Profile</span>
                     )}
-                    {item.near_tie && (
-                      <span className="badge-tag blended">Blended Preferences</span>
+                    {item.tie && (
+                      <span className="badge-tag blended">Equal score; time used to rank</span>
                     )}
                   </div>
                 </div>

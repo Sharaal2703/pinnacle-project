@@ -4,13 +4,12 @@ import { ConflictError, NotFoundError } from '../middleware/error.middleware';
 
 export class ConfigService {
   private static DEFAULT_CONFIG = {
-    version: '1.0.0',
-    totalLimitSec: 1500, // 25 minutes
-    selfReportLimitSec: 60,
-    scenarioLimitSec: 90,
+    version: '2.0.0',
+    totalLimitSec: 2280, // 38 minutes: 24 x 45 sec + 16 x 75 sec
+    selfReportLimitSec: 45,
+    scenarioLimitSec: 75,
     gracePeriodSec: 2,
     minAnsweredCount: 15,
-    nearTieMargin: 5.0,
     defaultQuestionWeight: 1.0,
     scoringFormulaVersion: '1.0.0',
     isActive: true
@@ -48,7 +47,6 @@ export class ConfigService {
       scenarioLimitSec: number;
       gracePeriodSec: number;
       minAnsweredCount: number;
-      nearTieMargin: number;
       defaultQuestionWeight: number;
       scoringFormulaVersion: string;
     }>
@@ -72,7 +70,6 @@ export class ConfigService {
           scenarioLimitSec: updates.scenarioLimitSec ?? active.scenarioLimitSec,
           gracePeriodSec: updates.gracePeriodSec ?? active.gracePeriodSec,
           minAnsweredCount: updates.minAnsweredCount ?? active.minAnsweredCount,
-          nearTieMargin: updates.nearTieMargin ?? Number(active.nearTieMargin),
           defaultQuestionWeight: updates.defaultQuestionWeight ?? Number(active.defaultQuestionWeight),
           scoringFormulaVersion: updates.scoringFormulaVersion ?? active.scoringFormulaVersion,
           isActive: true

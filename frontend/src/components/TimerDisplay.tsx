@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 
 interface TimerDisplayProps {
+  questionId: string;
   questionRemainingSec: number;
   assessmentRemainingSec: number;
   onQuestionTimeout?: () => void;
@@ -9,6 +10,7 @@ interface TimerDisplayProps {
 }
 
 export const TimerDisplay: React.FC<TimerDisplayProps> = ({
+  questionId,
   questionRemainingSec,
   assessmentRemainingSec,
   onQuestionTimeout,
@@ -17,10 +19,15 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
   const [qSec, setQSec] = useState<number>(questionRemainingSec);
   const [aSec, setASec] = useState<number>(assessmentRemainingSec);
 
-  // Sync state when props change (e.g. Next question loaded)
+  const questionTimeoutFiredRef = useRef(false);
+  const assessmentTimeoutFiredRef = useRef(false);
+
+  // Reset when a new question loads, even if its initial time matches the
+  // previous question's value (such as 45 seconds).
   useEffect(() => {
     setQSec(questionRemainingSec);
-  }, [questionRemainingSec]);
+    questionTimeoutFiredRef.current = false;
+  }, [questionId, questionRemainingSec]);
 
   useEffect(() => {
     setASec(assessmentRemainingSec);
@@ -36,7 +43,10 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     const interval = setInterval(() => {
       setQSec((prev) => {
         if (prev <= 1) {
-          onQuestionTimeoutRef.current?.();
+          if (!questionTimeoutFiredRef.current) {
+            questionTimeoutFiredRef.current = true;
+            onQuestionTimeoutRef.current?.();
+          }
           return 0;
         }
         return prev - 1;
@@ -44,7 +54,10 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
       setASec((prev) => {
         if (prev <= 1) {
-          onAssessmentTimeoutRef.current?.();
+          if (!assessmentTimeoutFiredRef.current) {
+            assessmentTimeoutFiredRef.current = true;
+            onAssessmentTimeoutRef.current?.();
+          }
           return 0;
         }
         return prev - 1;

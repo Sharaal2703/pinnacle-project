@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ApiError } from '../api/client';
-import { UserPlus, Compass, AlertCircle } from 'lucide-react';
+import { ApiError, api } from '../api/client';
+import { SelectField } from '../components/SelectField';
+import { UserPlus, Brain, AlertCircle } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -12,11 +13,30 @@ export const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [grade, setGrade] = useState<number>(7);
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
+  const [schoolId, setSchoolId] = useState('');
+  const [classId, setClassId] = useState('');
+  const [admissionNumber, setAdmissionNumber] = useState('');
+  const [options, setOptions] = useState<{ schools: { id: string; name: string }[]; classes: { id: string; school_id: string; grade: number; section: string; academic_year: string }[] }>({ schools: [], classes: [] });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    api.getRegistrationOptions().then(setOptions).catch(() => setOptions({ schools: [], classes: [] }));
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (options.schools.length && !schoolId) {
+      setError('Select a school to continue.');
+      return;
+    }
+    if (schoolId && !classId) {
+      setError('Select a section to continue.');
+      return;
+    }
     setError(null);
     setIsSubmitting(true);
 
@@ -25,7 +45,13 @@ export const RegisterPage: React.FC = () => {
         name: name.trim(),
         username: username.trim().toLowerCase(),
         password,
-        grade: Number(grade)
+        grade: Number(grade),
+        email: email.trim() || undefined,
+        phone: phone.trim() || undefined,
+        location: location.trim() || undefined,
+        school_id: schoolId || undefined,
+        class_id: classId || undefined,
+        admission_number: admissionNumber.trim() || undefined
       });
       navigate('/instructions');
     } catch (err: any) {
@@ -44,11 +70,11 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '480px', margin: '2rem auto' }}>
+    <div className="registration-page">
       <div className="card">
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ display: 'inline-flex', padding: '0.75rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '0.75rem' }}>
-            <Compass size={36} />
+            <Brain size={36} />
           </div>
           <h1 className="card-title">Join MindBridge</h1>
           <p className="card-subtitle">Create your student account to discover your learning style</p>
@@ -61,7 +87,7 @@ export const RegisterPage: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="registration-form-grid">
           <div className="form-group">
             <label className="form-label" htmlFor="name">Full Name</label>
             <input
@@ -71,7 +97,7 @@ export const RegisterPage: React.FC = () => {
               className="form-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Maya Sharma"
+              placeholder="e.g. Kumar"
             />
           </div>
 
@@ -84,13 +110,13 @@ export const RegisterPage: React.FC = () => {
               className="form-input"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. maya_student"
+              placeholder="e.g. kumar123"
               autoComplete="username"
             />
             <p className="form-hint">At least 3 characters. Use letters and numbers.</p>
           </div>
 
-          <div className="form-group">
+          <div className="form-group registration-form-full">
             <label className="form-label" htmlFor="password">Password</label>
             <input
               id="password"
@@ -106,24 +132,46 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="grade">Grade / Class</label>
-            <select
-              id="grade"
-              className="form-select"
-              value={grade}
-              onChange={(e) => setGrade(Number(e.target.value))}
-            >
-              <option value={6}>Class 6 (Middle School)</option>
-              <option value={7}>Class 7 (Middle School)</option>
-              <option value={8}>Class 8 (Middle School)</option>
-            </select>
-            <p className="form-hint">MindBridge is designed for middle school students (Grades 6–8).</p>
+            <label className="form-label" htmlFor="email">Email (optional)</label>
+            <input id="email" type="email" className="form-input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="phone">Phone (optional)</label>
+            <input id="phone" type="tel" className="form-input" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="location">Location</label>
+            <input id="location" type="text" className="form-input" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City or locality" required />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="admission-number">Admission number (optional)</label>
+            <input id="admission-number" className="form-input" value={admissionNumber} onChange={(e) => setAdmissionNumber(e.target.value)} maxLength={50} />
+          </div>
+
+          <div className="form-group registration-form-full">
+            <label className="form-label" htmlFor="school">School</label>
+            <SelectField id="school" ariaLabel="School" value={schoolId} onChange={(value) => { setSchoolId(value); setClassId(''); }} required options={[{ value: '', label: 'Select school' }, ...options.schools.map((school) => ({ value: school.id, label: school.name }))]} />
+            {options.schools.length === 0 && <p className="form-hint">School records have not been added yet. You can complete registration without one.</p>}
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="grade">Class</label>
+            <SelectField id="grade" ariaLabel="Class grade" value={grade} disabled={!schoolId} onChange={(value) => { setGrade(Number(value)); setClassId(''); }} required options={[6, 7, 8].map((value) => ({ value, label: `Class ${value} (Middle School)` }))} />
+            <p className="form-hint">MindBridge is designed for middle school students (Grades 6-8).</p>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="school-class">Section</label>
+            <SelectField id="school-class" ariaLabel="Section" value={classId} disabled={!schoolId} onChange={setClassId} required options={[{ value: '', label: 'Select section' }, ...options.classes.filter((item) => item.school_id === schoolId && item.grade === grade).map((item) => ({ value: item.id, label: item.section }))]} />
           </div>
 
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: '0.75rem' }}
+            style={{ width: '100%', marginTop: '0.75rem', gridColumn: '1 / -1' }}
             disabled={isSubmitting}
           >
             <UserPlus size={18} />

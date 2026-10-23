@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { PathwayCodeEnum, QuestionTypeEnum, ReviewStatusEnum } from './enums';
+import { PathwayCodeEnum, QuestionTypeEnum, ReviewStatusEnum, VarkTypeEnum } from './enums';
 
 export const QuestionOptionContributionSchema = z.object({
   pathway_code: PathwayCodeEnum,
-  contribution: z.number().min(0).max(1)
+  contribution: z.literal(1)
 });
 export type QuestionOptionContribution = z.infer<typeof QuestionOptionContributionSchema>;
 
@@ -12,6 +12,7 @@ export const QuestionOptionDTO = z.object({
   option_key: z.string(),
   label: z.string(),
   order_index: z.number().int(),
+  vark_type: VarkTypeEnum.nullable().optional(),
   pathway_contributions: z.array(QuestionOptionContributionSchema).optional()
 });
 export type QuestionOption = z.infer<typeof QuestionOptionDTO>;
@@ -40,6 +41,7 @@ export const CreateQuestionOptionInputSchema = z.object({
   option_key: z.string().min(1),
   label: z.string().min(1),
   order_index: z.number().int().default(0),
+  vark_type: VarkTypeEnum.nullable().optional(),
   pathway_contributions: z.array(QuestionOptionContributionSchema).optional().default([])
 });
 
