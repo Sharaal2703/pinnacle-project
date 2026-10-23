@@ -345,6 +345,11 @@ export const ResultPage: React.FC = () => {
         dominantCode={profile.dominant?.code}
         secondaryCode={profile.secondary?.code}
       />
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+        <button type="button" className="btn btn-primary" onClick={() => navigate("/learning")}>
+          Explore Learning Module <ArrowRight size={17} />
+        </button>
+      </div>
 
       {/* Scientific Framing Disclaimer */}
       <div

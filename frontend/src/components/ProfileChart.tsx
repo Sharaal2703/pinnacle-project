@@ -78,7 +78,7 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
   dominantCode,
   secondaryCode
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('radar');
 
   // Ensure scores is a safe array
   const safeScores = Array.isArray(scores) ? scores : [];
@@ -144,7 +144,7 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
     <div className="card" style={{ padding: '2rem 1.75rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
-          <h2 className="card-title">Preference Visualization Suite</h2>
+          <h2 className="card-title">Preference Intelligence Type Visualization</h2>
           <p className="card-subtitle">
             Explore your learning preference distribution through multimodal charts and analytical views.
           </p>
@@ -152,14 +152,6 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
 
         {/* View Mode Toggle Bar */}
         <div className="plot-selector-bar" role="tablist" aria-label="Chart Views">
-          <button
-            type="button"
-            className={`plot-toggle-btn ${viewMode === 'all' ? 'active' : ''}`}
-            onClick={() => setViewMode('all')}
-          >
-            <LayoutGrid size={16} />
-            <span>All Views</span>
-          </button>
           <button
             type="button"
             className={`plot-toggle-btn ${viewMode === 'radar' ? 'active' : ''}`}
@@ -483,55 +475,6 @@ export const ProfileChart: React.FC<ProfileChartProps> = ({
           </table>
         </div>
       )}
-
-      {/* --- 5. HOW MODULE 2 TEACHES IN YOUR PATHWAY --- */}
-      <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4f46e5', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.5rem' }}>
-          <BookOpen size={18} />
-          <span>Module 2: How Lessons Will Adapt To Your Profile</span>
-        </div>
-        <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
-          Curriculum topics (e.g., Photosynthesis, Solar System, Fractions) will be recommended through formats matching your strengths:
-        </p>
-
-        <div className="strategy-grid">
-          {dominantCode && PATHWAY_CONFIG[dominantCode] && (
-            <div className="strategy-card dominant">
-              <h3>
-                <Sparkles size={20} style={{ color: '#4f46e5' }} />
-                <span>Primary Pathway: {PATHWAY_CONFIG[dominantCode].name}</span>
-              </h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>
-                Your default presentation modality:
-              </p>
-              <ul className="strategy-list">
-                <li>
-                  <CheckCircle2 size={16} style={{ color: '#4f46e5', flexShrink: 0 }} />
-                  <span>{PATHWAY_CONFIG[dominantCode].strategy}</span>
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {secondaryCode && PATHWAY_CONFIG[secondaryCode] && (
-            <div className="strategy-card secondary">
-              <h3>
-                <Sparkles size={20} style={{ color: '#06b6d4' }} />
-                <span>Secondary Pathway: {PATHWAY_CONFIG[secondaryCode].name}</span>
-              </h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>
-                Used for blended learning or when you need an alternative perspective:
-              </p>
-              <ul className="strategy-list">
-                <li>
-                  <CheckCircle2 size={16} style={{ color: '#06b6d4', flexShrink: 0 }} />
-                  <span>{PATHWAY_CONFIG[secondaryCode].strategy}</span>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

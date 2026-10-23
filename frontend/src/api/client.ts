@@ -67,7 +67,6 @@ export interface LearningConcept {
   description: string | null;
   learningObjective: string | null;
   curriculumReference: string | null;
-  difficulty: 'EASY' | 'MEDIUM' | 'CHALLENGING';
   orderIndex: number;
   resources: LearningResourceSummary[];
   progress: { status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'NEEDS_REVIEW'; progressPercent: number; completedAt: string | null }[];
@@ -330,7 +329,7 @@ export const api = {
     return request('/learning/admin/curriculum/chapters', { method: 'POST', body: JSON.stringify(payload) });
   },
 
-  async createAdminCurriculumConcept(chapterId: string, payload: { conceptKey: string; title: string; description?: string; learningObjective?: string; curriculumReference?: string; difficulty: 'EASY' | 'MEDIUM' | 'CHALLENGING'; orderIndex: number }): Promise<any> {
+  async createAdminCurriculumConcept(chapterId: string, payload: { conceptKey: string; title: string; description?: string; learningObjective?: string; curriculumReference?: string; orderIndex: number }): Promise<any> {
     return request(`/learning/admin/curriculum/chapters/${chapterId}/concepts`, { method: 'POST', body: JSON.stringify(payload) });
   },
 

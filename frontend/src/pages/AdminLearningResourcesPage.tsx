@@ -23,7 +23,14 @@ export const AdminLearningResourcesPage: React.FC = () => {
   const [subjects, setSubjects] = useState<{ id: string; code: string; name: string }[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [chapterForm, setChapterForm] = useState({ subjectId: '', grade: 6, term: 1, title: '', description: '', curriculumReference: '', orderIndex: 1 });
-  const [conceptForm, setConceptForm] = useState({ chapterId: '', conceptKey: '', title: '', learningObjective: '', curriculumReference: '', difficulty: 'MEDIUM' as 'EASY' | 'MEDIUM' | 'CHALLENGING', orderIndex: 1 });
+  const [conceptGrade, setConceptGrade] = useState(6);
+  const [conceptTerm, setConceptTerm] = useState(1);
+  const [conceptSubjectId, setConceptSubjectId] = useState('');
+  const [conceptForm, setConceptForm] = useState({ chapterId: '', conceptKey: '', title: '', learningObjective: '', curriculumReference: '', orderIndex: 1 });
+  const [resourceGrade, setResourceGrade] = useState(6);
+  const [resourceSubjectId, setResourceSubjectId] = useState('');
+  const [resourceTerm, setResourceTerm] = useState(1);
+  const [resourceChapterId, setResourceChapterId] = useState('');
   const [resourceForm, setResourceForm] = useState({ conceptId: '', pathwayCode: 'VIS' as 'VIS' | 'LING' | 'LOGI', format: 'VIDEO' as 'VIDEO' | 'IMAGE' | 'PDF', title: '', sourceReference: '' });
   const [resourceFile, setResourceFile] = useState<File | null>(null);
   const load = async () => {
@@ -39,9 +46,18 @@ export const AdminLearningResourcesPage: React.FC = () => {
       const [subjectRows, chapterRows] = await Promise.all([api.listAdminLearningSubjects(), api.listAdminCurriculum()]);
       setSubjects(subjectRows); setChapters(chapterRows);
       if (!chapterForm.subjectId && subjectRows.length) setChapterForm(v => ({ ...v, subjectId: subjectRows[0].id }));
-      if (!conceptForm.chapterId && chapterRows.length) setConceptForm(v => ({ ...v, chapterId: chapterRows[0].id }));
+      if (!conceptSubjectId && subjectRows.length) setConceptSubjectId(subjectRows[0].id);
       const allConcepts = chapterRows.flatMap((chapter: Chapter) => chapter.concepts);
-      if (!resourceForm.conceptId && allConcepts.length) setResourceForm(v => ({ ...v, conceptId: allConcepts[0].id }));
+      if (!resourceForm.conceptId && allConcepts.length) {
+        const firstChapter = chapterRows.find((chapter: Chapter) => chapter.concepts.length > 0);
+        if (firstChapter) {
+          setResourceGrade(firstChapter.grade);
+          setResourceSubjectId(firstChapter.subject.id);
+          setResourceTerm(firstChapter.term ?? 1);
+          setResourceChapterId(firstChapter.id);
+          setResourceForm(v => ({ ...v, conceptId: firstChapter.concepts[0].id }));
+        }
+      }
     } catch (e) { setError(e instanceof ApiError ? e.message : 'Could not load curriculum.'); }
   };
 
@@ -109,6 +125,11 @@ export const AdminLearningResourcesPage: React.FC = () => {
 
   const accept = (format: Resource['format']) => format === 'VIDEO' ? 'video/*' : format === 'IMAGE' ? 'image/jpeg,image/png,image/webp,image/gif' : 'application/pdf';
   const availableConcepts = chapters.flatMap(chapter => chapter.concepts.map(concept => ({ ...concept, chapter })));
+  const resourceChapters = chapters.filter(chapter => chapter.grade === resourceGrade && chapter.subject.id === resourceSubjectId && chapter.term === resourceTerm);
+  const selectedResourceChapter = resourceChapters.find(chapter => chapter.id === resourceChapterId);
+  const resourceConcepts = selectedResourceChapter?.concepts ?? [];
+  const conceptChapters = chapters.filter(chapter => chapter.grade === conceptGrade && chapter.term === conceptTerm && chapter.subject.id === conceptSubjectId);
+  const setConceptChapter = (chapterId: string) => setConceptForm(v => ({ ...v, chapterId }));
 
   return <div style={{ maxWidth: 1050, margin: '0 auto' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}><div><h1>Learning Resources</h1><p style={{ color: '#64748b' }}>Enter the details and upload the file. The assigned teacher reviews it before you publish it to students.</p></div><button className="btn btn-secondary" onClick={() => void load()}><RefreshCw size={16} /> Refresh</button></div>
@@ -129,18 +150,48 @@ export const AdminLearningResourcesPage: React.FC = () => {
       </section>
       {chapters.length > 0 && <section className="card" style={{ padding: '1.25rem', margin: '1rem 0' }}><h2>Add concept</h2>
         <form className="admin-horizontal-form" onSubmit={createConcept}>
-          <label>Chapter<SelectField ariaLabel="Chapter" value={conceptForm.chapterId} onChange={value => setConceptForm({ ...conceptForm, chapterId: value })} options={chapters.map(c => ({ value: c.id, label: `Grade ${c.grade} · ${c.subject.name} · ${c.title}` }))} /></label>
+          <label>Grade<SelectField ariaLabel="Concept grade" value={conceptGrade} onChange={value => { setConceptGrade(Number(value)); setConceptChapter(''); }} options={[6,7,8].map(g => ({ value: g, label: `Grade ${g}` }))} /></label>
+          <label>Subject<SelectField ariaLabel="Concept subject" value={conceptSubjectId} onChange={value => { setConceptSubjectId(value); setConceptChapter(''); }} options={subjects.map(subject => ({ value: subject.id, label: subject.name }))} /></label>
+          <label>Term<SelectField ariaLabel="Concept term" value={conceptTerm} onChange={value => { setConceptTerm(Number(value)); setConceptChapter(''); }} options={[1,2,3].map(term => ({ value: term, label: `Term ${term}` }))} /></label>
+          <label>Chapter name<SelectField ariaLabel="Concept chapter name" value={conceptForm.chapterId} onChange={setConceptChapter} options={conceptChapters.map(chapter => ({ value: chapter.id, label: chapter.title }))} /></label>
           <label>Concept key<input required maxLength={100} value={conceptForm.conceptKey} onChange={e => setConceptForm({ ...conceptForm, conceptKey: e.target.value })} /></label>
           <label>Concept title<input required maxLength={200} value={conceptForm.title} onChange={e => setConceptForm({ ...conceptForm, title: e.target.value })} /></label>
-          <label>Difficulty<SelectField ariaLabel="Difficulty" value={conceptForm.difficulty} onChange={value => setConceptForm({ ...conceptForm, difficulty: value as typeof conceptForm.difficulty })} options={[{ value: 'EASY', label: 'Easy' }, { value: 'MEDIUM', label: 'Medium' }, { value: 'CHALLENGING', label: 'Challenging' }]} /></label>
           <label>Order<input type="number" min="0" required value={conceptForm.orderIndex} onChange={e => setConceptForm({ ...conceptForm, orderIndex: Number(e.target.value) })} /></label>
           <label>Objective (optional)<input value={conceptForm.learningObjective} onChange={e => setConceptForm({ ...conceptForm, learningObjective: e.target.value })} /></label>
           <label>Textbook reference (optional)<input value={conceptForm.curriculumReference} onChange={e => setConceptForm({ ...conceptForm, curriculumReference: e.target.value })} /></label>
           <div style={{ alignSelf: 'end' }}><button className="btn btn-primary" disabled={busy === 'curriculum'}>Create concept</button></div>
         </form>
       </section>}
-      <h2>Configured chapters</h2>
-      {chapters.map(chapter => <div className="card" key={chapter.id} style={{ padding: '1rem', margin: '.5rem 0' }}>Grade {chapter.grade} · Term {chapter.term ?? 'not set'} · {chapter.subject.name} · Chapter {chapter.orderIndex}: {chapter.title} · {chapter._count.concepts} concepts</div>)}
+      <section className="card configured-concepts" style={{ padding: '1.25rem', margin: '1rem 0' }}>
+        <h2>Configured concepts</h2>
+        <div className="configured-concepts-list">
+          {chapters.length === 0 ? <p>No chapters or concepts configured yet.</p> : [6, 7, 8].map(grade => {
+            const gradeChapters = chapters.filter(chapter => chapter.grade === grade);
+            if (!gradeChapters.length) return null;
+            return <details className="concept-group concept-grade" key={grade}>
+              <summary><strong>Grade {grade}</strong></summary>
+              {[1, 2, 3, null].map(term => {
+                const termChapters = gradeChapters.filter(chapter => chapter.term === term);
+                if (!termChapters.length) return null;
+                return <details className="concept-group concept-term" key={term ?? 'unspecified'}>
+                  <summary>Term {term ?? 'not set'}</summary>
+                  {subjects.map(subject => {
+                    const subjectChapters = termChapters.filter(chapter => chapter.subject.id === subject.id);
+                    if (!subjectChapters.length) return null;
+                    return <details className="concept-group concept-subject" key={subject.id}>
+                      <summary>{subject.name}</summary>
+                      {subjectChapters.sort((a, b) => a.orderIndex - b.orderIndex).map(chapter => <details className="concept-group concept-chapter" key={chapter.id}>
+                        <summary>Chapter {chapter.orderIndex}: {chapter.title}<small className="concept-count">{chapter.concepts.length} concepts</small></summary>
+                        {chapter.concepts.length > 0 && <ul>{chapter.concepts.map(concept => <li key={concept.id}>{concept.title}</li>)}</ul>}
+                      </details>)}
+                    </details>;
+                  })}
+                </details>;
+              })}
+            </details>;
+          })}
+        </div>
+      </section>
     </> : <>
     <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center', margin: '1rem 0' }}>Filter status
       <SelectField ariaLabel="Filter resource status" value={status} onChange={setStatus} options={[{ value: 'PENDING_REVIEW', label: 'Pending teacher review' }, { value: 'DRAFT', label: 'Draft / upload retry' }, { value: 'APPROVED', label: 'Approved to publish' }, { value: 'PUBLISHED', label: 'Published' }, { value: 'NEEDS_REVISION', label: 'Needs revision' }, { value: 'REJECTED', label: 'Rejected' }, { value: 'ARCHIVED', label: 'Archived' }]} />
@@ -149,7 +200,11 @@ export const AdminLearningResourcesPage: React.FC = () => {
       <h2>Create resource and upload</h2>
       <p style={{ color: '#64748b' }}>The assigned teacher reviews the uploaded resource before it can be published.</p>
       {!availableConcepts.length ? <p>Add chapters and concepts in the Curriculum tab first.</p> : <form className="admin-horizontal-form" onSubmit={createResource}>
-        <label>Curriculum concept<SelectField required ariaLabel="Curriculum concept" value={resourceForm.conceptId} onChange={value => setResourceForm({ ...resourceForm, conceptId: value })} options={availableConcepts.map(option => ({ value: option.id, label: `Grade ${option.chapter.grade} · ${option.chapter.subject.name} · ${option.chapter.title} · ${option.title}` }))} /></label>
+        <label>Grade<SelectField ariaLabel="Resource grade" value={resourceGrade} onChange={value => { setResourceGrade(Number(value)); setResourceChapterId(''); setResourceForm(v => ({ ...v, conceptId: '' })); }} options={[6,7,8].map(grade => ({ value: grade, label: `Grade ${grade}` }))} /></label>
+        <label>Subject<SelectField ariaLabel="Resource subject" value={resourceSubjectId} onChange={value => { setResourceSubjectId(value); setResourceChapterId(''); setResourceForm(v => ({ ...v, conceptId: '' })); }} options={subjects.filter(subject => chapters.some(chapter => chapter.grade === resourceGrade && chapter.subject.id === subject.id)).map(subject => ({ value: subject.id, label: subject.name }))} /></label>
+        <label>Term<SelectField ariaLabel="Resource term" value={resourceTerm} onChange={value => { setResourceTerm(Number(value)); setResourceChapterId(''); setResourceForm(v => ({ ...v, conceptId: '' })); }} options={[1,2,3].filter(term => chapters.some(chapter => chapter.grade === resourceGrade && chapter.subject.id === resourceSubjectId && chapter.term === term)).map(term => ({ value: term, label: `Term ${term}` }))} /></label>
+        <label>Chapter<SelectField ariaLabel="Resource chapter" value={resourceChapterId} onChange={value => { setResourceChapterId(value); setResourceForm(v => ({ ...v, conceptId: '' })); }} options={resourceChapters.map(chapter => ({ value: chapter.id, label: chapter.title }))} /></label>
+        <label>Concept<SelectField required ariaLabel="Resource concept" value={resourceForm.conceptId} onChange={value => setResourceForm(v => ({ ...v, conceptId: value }))} options={resourceConcepts.map(concept => ({ value: concept.id, label: concept.title }))} /></label>
         <label>Resource title<input required maxLength={200} value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} /></label>
         <label>Format<SelectField ariaLabel="Resource format" value={resourceForm.format} onChange={value => setResourceForm({ ...resourceForm, format: value as typeof resourceForm.format })} options={[{ value: 'VIDEO', label: 'Video' }, { value: 'IMAGE', label: 'Image' }, { value: 'PDF', label: 'PDF' }]} /></label>
         <label>Learning pathway<SelectField ariaLabel="Learning pathway" value={resourceForm.pathwayCode} onChange={value => setResourceForm({ ...resourceForm, pathwayCode: value as typeof resourceForm.pathwayCode })} options={[{ value: 'VIS', label: 'Visual' }, { value: 'LING', label: 'Linguistic' }, { value: 'LOGI', label: 'Logical-Mathematical' }]} /></label>
