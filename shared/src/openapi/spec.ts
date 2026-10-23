@@ -285,6 +285,25 @@ registry.registerPath({
 });
 
 registry.registerPath({
+  method: 'get',
+  path: '/api/v1/assessment-access/students/{student_id}/report',
+  summary: 'Get the detailed profile for a student in the teacher’s assigned class',
+  security: [{ [bearerAuth.name]: [] }],
+  request: { params: z.object({ student_id: z.string().uuid() }) },
+  responses: {
+    200: {
+      description: 'Student details and the current profile, if the student has completed an assessment',
+      content: { 'application/json': { schema: z.object({
+        student: z.object({ id: z.string().uuid(), name: z.string(), username: z.string(), grade: z.number().int(), class_name: z.string().nullable() }),
+        profile: PreferenceProfileDTO.nullable()
+      }) } }
+    },
+    403: { description: 'Teacher is not assigned to the student’s class' },
+    404: { description: 'Student not found' }
+  }
+});
+
+registry.registerPath({
   method: 'post',
   path: '/api/v1/assessment-access/students/{student_id}/retake-access',
   summary: 'Authorize one retake after a student has completed an assessment (teacher only)',

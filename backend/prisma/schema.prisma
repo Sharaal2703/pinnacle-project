@@ -55,6 +55,35 @@ enum ObserverRole {
   TEACHER
 }
 
+enum LearningResourceFormat {
+  VIDEO
+  IMAGE
+  PDF
+}
+
+enum LearningResourceStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+  NEEDS_REVISION
+  ARCHIVED
+}
+
+enum ConceptDifficulty {
+  EASY
+  MEDIUM
+  CHALLENGING
+}
+
+enum ConceptProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  NEEDS_REVIEW
+}
+
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -71,6 +100,9 @@ model User {
   teacher                Teacher?
   observations           Observation[]
   assessmentRetakeGrants AssessmentRetakeGrant[] @relation("AssessmentRetakeGrantIssuer")
+  createdLearningResources LearningResource[] @relation("LearningResourceCreator")
+  reviewedLearningResources LearningResource[] @relation("LearningResourceReviewer")
+  uploadedLearningResources LearningResource[] @relation("LearningResourceUploader")
 
   @@map("users")
 }
@@ -92,6 +124,7 @@ model Student {
   guardians              StudentGuardian[]
   observations           Observation[]
   assessmentRetakeGrants AssessmentRetakeGrant[]
+  conceptProgress        ConceptProgress[]
 
   @@unique([schoolId, admissionNumber])
   @@index([schoolId, classId])
@@ -111,6 +144,8 @@ model Pathway {
   observationRatings ObservationRating[]
 
   @@map("intelligence_types")
+
+  learningResources LearningResource[]
 }
 
 model School {
@@ -164,8 +199,113 @@ model Subject {
   code        String                   @unique
   name        String                   @unique
   assignments TeacherClassAssignment[]
+  chapters    CurriculumChapter[]
 
   @@map("subjects")
+}
+
+model CurriculumChapter {
+  id                  String   @id @default(uuid())
+  subjectId           String
+  subject             Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  grade               Int      @db.SmallInt
+  title               String   @db.VarChar(200)
+  term                Int?     @db.SmallInt
+  description         String?
+  curriculumReference String?
+  orderIndex          Int      @default(0)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  concepts CurriculumConcept[]
+
+  @@unique([subjectId, grade, term, orderIndex])
+  @@index([grade, subjectId, isActive])
+  @@map("curriculum_chapters")
+}
+
+model CurriculumConcept {
+  id                  String            @id @default(uuid())
+  chapterId           String
+  chapter             CurriculumChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  conceptKey          String            @db.VarChar(100)
+  title               String            @db.VarChar(200)
+  description         String?
+  learningObjective   String?
+  curriculumReference String?
+  difficulty          ConceptDifficulty @default(MEDIUM)
+  orderIndex          Int               @default(0)
+  isActive            Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  resources LearningResource[]
+  progress  ConceptProgress[]
+
+  @@unique([chapterId, conceptKey])
+  @@unique([chapterId, orderIndex])
+  @@index([chapterId, isActive])
+  @@map("curriculum_concepts")
+}
+
+model LearningResource {
+  id              String                @id @default(uuid())
+  resourceKey     String                @db.VarChar(100)
+  version         Int                   @default(1)
+  conceptId       String
+  concept         CurriculumConcept     @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  pathwayId       String
+  pathway         Pathway               @relation(fields: [pathwayId], references: [id], onDelete: Restrict)
+  format          LearningResourceFormat
+  languageCode    String                @default("en") @db.VarChar(10)
+  title           String                @db.VarChar(200)
+  status          LearningResourceStatus @default(DRAFT)
+  storageBucket   String?               @db.VarChar(100)
+  storagePath     String?               @db.VarChar(500)
+  mimeType        String?               @db.VarChar(100)
+  fileSizeBytes   BigInt?
+  durationSeconds Int?
+  sourceReference String?
+  createdById     String
+  createdBy       User                  @relation("LearningResourceCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  reviewedById    String?
+  reviewedBy      User?                 @relation("LearningResourceReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  uploadedById    String?
+  uploadedBy      User?                 @relation("LearningResourceUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  reviewNotes     String?
+  reviewedAt      DateTime?
+  publishedAt     DateTime?
+  isActive        Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  progress ConceptProgress[]
+
+  @@unique([resourceKey, version])
+  @@unique([storageBucket, storagePath])
+  @@index([conceptId, status, isActive])
+  @@index([pathwayId, status, languageCode])
+  @@map("learning_resources")
+}
+
+model ConceptProgress {
+  id                String               @id @default(uuid())
+  studentId         String
+  student           Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  conceptId         String
+  concept           CurriculumConcept    @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  status            ConceptProgressStatus @default(NOT_STARTED)
+  progressPercent   Int                  @default(0) @db.SmallInt
+  lastResourceId    String?
+  lastResource      LearningResource?    @relation(fields: [lastResourceId], references: [id], onDelete: SetNull)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  updatedAt         DateTime             @updatedAt
+
+  @@unique([studentId, conceptId])
+  @@index([studentId, status])
+  @@map("concept_progress")
 }
 
 model TeacherClassAssignment {

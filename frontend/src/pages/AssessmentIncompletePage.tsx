@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { AlertTriangle, RefreshCw, Compass } from 'lucide-react';
 
-export const IncompletePage: React.FC = () => {
+export const AssessmentIncompletePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const outcome = location.state?.outcome;

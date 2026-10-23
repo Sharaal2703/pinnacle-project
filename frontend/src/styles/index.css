@@ -482,6 +482,333 @@ button {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Keep native form controls visually consistent, including pages that do not
+   use the shared form-input/form-select classes. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]),
+select,
+textarea {
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background-color: #fff;
+  color: var(--text-main);
+  font: inherit;
+  line-height: 1.35;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]),
+select,
+textarea {
+  max-width: 100%;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1.1rem;
+  cursor: pointer;
+}
+
+select:hover:not(:disabled) {
+  border-color: #a5b4fc;
+}
+
+select option {
+  padding: 0.65rem 0.8rem;
+  color: var(--text-main);
+  background: #fff;
+}
+
+.select-field {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.form-group > .select-field,
+label > .select-field {
+  margin-top: 0.4rem;
+}
+
+.admin-horizontal-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-horizontal-form > label {
+  display: grid;
+  grid-template-columns: minmax(190px, 250px) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.admin-horizontal-form > label > input:not([type="file"]),
+.admin-horizontal-form > label > .select-field {
+  width: 100%;
+  margin-top: 0;
+}
+
+.admin-horizontal-form > label > input[type="file"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0.35rem;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text-muted);
+  font: inherit;
+}
+
+.admin-horizontal-form > label > input[type="file"]::file-selector-button {
+  min-height: 36px;
+  margin-right: 0.7rem;
+  padding: 0.45rem 0.8rem;
+  border: 0;
+  border-radius: calc(var(--radius) - 4px);
+  background: #eef2ff;
+  color: #3730a3;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-horizontal-form > label > input[type="file"]::file-selector-button:hover {
+  background: #e0e7ff;
+}
+
+.admin-horizontal-form > div {
+  grid-column: 2;
+  align-self: center !important;
+}
+
+.student-report-backdrop {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.student-report-dialog {
+  width: min(1120px, 100%);
+  max-height: none;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-main);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+
+.student-report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.student-report-header h2,
+.student-report-header p {
+  margin: 0;
+}
+
+.student-report-header p {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+}
+
+.student-report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.student-report-summary > div {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.student-report-summary span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.student-report-summary strong {
+  color: var(--text-main);
+}
+
+@media (max-width: 600px) {
+  .admin-horizontal-form > label {
+    grid-template-columns: minmax(110px, 38%) minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  .student-report-backdrop {
+    padding: 0.5rem;
+  }
+
+  .student-report-dialog {
+    padding: 1rem;
+  }
+
+  .student-report-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.select-field-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text-main);
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.select-field-trigger:hover:not(:disabled) {
+  border-color: #a5b4fc;
+}
+
+.select-field-trigger:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.select-field-trigger:disabled {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.select-field-trigger > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-field-placeholder {
+  color: var(--text-muted);
+}
+
+.select-field-chevron {
+  flex: none;
+  color: #64748b;
+  transition: transform 0.15s ease;
+}
+
+.select-field-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.select-field-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  width: 100%;
+  max-height: min(18rem, 50vh);
+  overflow-y: auto;
+  padding: 0.35rem;
+  border: 1px solid #dbe3f0;
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.select-field-option {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.select-field-option:hover:not(:disabled),
+.select-field-option.is-active:not(:disabled) {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.select-field-option.is-selected:not(:disabled) {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+}
+
+.select-field-option:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background-color: #f1f5f9;
+  color: var(--text-muted);
+  background-image: none;
+  cursor: not-allowed;
+}
+
+label > input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]),
+label > select,
+label > textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   outline: none;
   border-color: var(--primary);
@@ -1105,5 +1432,329 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+}
+
+/* Student learning library */
+.learning-library-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.learning-library-heading {
+  margin-bottom: 1.5rem;
+}
+
+.learning-library-heading h1,
+.learning-library-heading p {
+  margin-top: 0;
+}
+
+.learning-library-heading p {
+  color: var(--text-muted);
+}
+
+.learning-pathway-note {
+  color: var(--text-main) !important;
+}
+
+.learning-profile-note {
+  margin-bottom: 1rem;
+}
+
+.learning-loading,
+.learning-empty-state {
+  padding: 2rem;
+  text-align: center;
+}
+
+.learning-subject-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 2rem;
+}
+
+.learning-subject-card {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 0.9rem;
+  row-gap: 0.2rem;
+  padding: 1.1rem 1.25rem;
+  color: var(--text-main);
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.learning-subject-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.learning-subject-card:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, 0.25);
+  outline-offset: 2px;
+}
+
+.learning-subject-card.is-selected {
+  border: 2px solid var(--primary);
+  background: #f5f5ff;
+}
+
+.learning-subject-icon {
+  grid-row: 1 / 3;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  color: var(--primary);
+  background: #e9e8ff;
+  border-radius: 0.8rem;
+}
+
+.learning-subject-name {
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.learning-subject-count {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.learning-selected-subject {
+  margin-top: 1.5rem;
+}
+
+.learning-selected-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.learning-selected-heading h2 {
+  margin: 0.15rem 0 0;
+}
+
+.learning-selected-heading p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.learning-subject-code {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.learning-term-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 1rem;
+}
+
+.learning-term-card {
+  min-width: 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.learning-term-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.learning-term-heading h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.learning-term-heading span {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.learning-term-empty {
+  margin: 0.85rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.learning-chapter-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.learning-chapter-description {
+  margin: 0.4rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.learning-chapter-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  color: var(--text-main);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.learning-chapter-link:hover {
+  color: var(--primary-dark);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.learning-chapter-link:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, 0.25);
+  outline-offset: 2px;
+}
+
+.learning-concept-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.learning-concept-heading h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.learning-concept-heading p {
+  margin: 0.35rem 0 0;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.learning-concept-heading .learning-concept-description {
+  color: var(--text-muted);
+}
+
+.learning-completed {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.3rem;
+  color: #15803d;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.learning-resource-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.learning-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.learning-back-link:hover {
+  text-decoration: underline;
+}
+
+.learning-chapter-page-heading {
+  margin-bottom: 1.5rem;
+}
+
+.learning-chapter-page-heading > p {
+  margin: 0.25rem 0;
+  color: var(--text-muted);
+}
+
+.learning-chapter-page-heading h1 {
+  margin: 0.25rem 0;
+}
+
+.learning-concept-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.learning-concept-card {
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.learning-complete-button {
+  margin-top: 0.65rem;
+}
+
+.learning-unassigned-term {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius);
+}
+
+.learning-unassigned-term h3,
+.learning-unassigned-term p {
+  margin: 0 0 0.5rem;
+}
+
+.learning-unassigned-term ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+@media (max-width: 850px) {
+  .learning-term-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .learning-subject-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-selected-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 

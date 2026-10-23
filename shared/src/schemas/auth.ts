@@ -23,6 +23,8 @@ export const CreateTeacherAccountSchema = z.object({
   phone: z.string().max(30).optional(),
   location: z.string().max(200).optional(),
   school_id: z.string().uuid().optional(),
+  class_id: z.string().uuid().optional(),
+  subject_id: z.string().uuid().optional(),
   new_school: z.object({
     school_name: z.string().trim().min(1, 'School name is required').max(150),
     address: z.string().trim().max(250).optional(),
@@ -35,6 +37,9 @@ export const CreateTeacherAccountSchema = z.object({
 }).refine((data) => Boolean(data.school_id) !== Boolean(data.new_school), {
   message: 'Choose an existing school or provide details for a new school',
   path: ['school_id']
+}).refine((data) => Boolean(data.class_id) === Boolean(data.subject_id), {
+  message: 'Choose both a class and subject to create an assignment',
+  path: ['class_id']
 });
 export type CreateTeacherAccount = z.infer<typeof CreateTeacherAccountSchema>;
 
@@ -55,6 +60,7 @@ export const TeacherAccountDTO = z.object({
   phone: z.string().nullable(),
   location: z.string().nullable(),
   school_name: z.string(),
+  school_id: z.string().uuid(),
   employee_number: z.string().nullable(),
   is_active: z.boolean(),
   created_at: z.string().datetime()

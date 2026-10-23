@@ -16,7 +16,6 @@ import type {
   ReviewQuestionInput,
   AssessmentConfig,
   UpdateAssessmentConfig,
-  ErrorResponse,
   StudentAssessmentAccess,
   ManagedAssessmentStudent,
   TeacherAccount,
@@ -53,6 +52,36 @@ export const tokenStore = {
     this.setToken(null);
   }
 };
+
+export interface LearningResourceSummary {
+  id: string;
+  title: string;
+  format: 'VIDEO' | 'IMAGE' | 'PDF';
+  pathway: { code: string; name: string };
+  durationSeconds: number | null;
+}
+export interface LearningConcept {
+  id: string;
+  conceptKey: string;
+  title: string;
+  description: string | null;
+  learningObjective: string | null;
+  curriculumReference: string | null;
+  difficulty: 'EASY' | 'MEDIUM' | 'CHALLENGING';
+  orderIndex: number;
+  resources: LearningResourceSummary[];
+  progress: { status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'NEEDS_REVIEW'; progressPercent: number; completedAt: string | null }[];
+}
+export interface LearningCatalog {
+  grade: number;
+  preferredPathways: string[];
+  profileRequired: boolean;
+  subjects: { id: string; code: string; name: string; chapters: { id: string; title: string; term: number | null; description: string | null; curriculumReference: string | null; orderIndex: number; concepts: LearningConcept[] }[] }[];
+}
+export interface TeacherStudentReport {
+  student: { id: string; name: string; username: string; grade: number; class_name: string | null };
+  profile: PreferenceProfile | null;
+}
 
 export class ApiError extends Error {
   code: string;
@@ -137,6 +166,10 @@ export const api = {
 
   async listManagedAssessmentStudents(): Promise<ManagedAssessmentStudent[]> {
     return request<ManagedAssessmentStudent[]>('/assessment-access/students', { method: 'GET' });
+  },
+
+  async getAssignedStudentReport(studentId: string): Promise<TeacherStudentReport> {
+    return request<TeacherStudentReport>(`/assessment-access/students/${studentId}/report`, { method: 'GET' });
   },
 
   async grantAssessmentRetake(studentId: string): Promise<{ message: string; granted_at: string }> {
@@ -238,5 +271,78 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload)
     });
+  },
+
+  async listTeacherAssignments(teacherId: string): Promise<{ id: string; subject: { id: string; code: string; name: string }; class: { id: string; school_id: string; grade: number; section: string; academic_year: string } }[]> {
+    return request(`/admin/teachers/${teacherId}/assignments`, { method: 'GET' });
+  },
+
+  async assignTeacherToClass(teacherId: string, classId: string, subjectId: string): Promise<unknown> {
+    return request(`/admin/teachers/${teacherId}/assignments`, { method: 'POST', body: JSON.stringify({ class_id: classId, subject_id: subjectId }) });
+  },
+
+  async removeTeacherAssignment(teacherId: string, assignmentId: string): Promise<void> {
+    await request(`/admin/teachers/${teacherId}/assignments/${assignmentId}`, { method: 'DELETE' });
+  },
+
+  async getLearningCatalog(): Promise<LearningCatalog> {
+    return request<LearningCatalog>('/learning/catalog', { method: 'GET' });
+  },
+
+  async openLearningResource(resourceId: string): Promise<{ url: string; expiresIn: number }> {
+    return request(`/learning/resources/${resourceId}/open`, { method: 'GET' });
+  },
+
+  async updateConceptProgress(conceptId: string, payload: { status: 'IN_PROGRESS' | 'COMPLETED' | 'NEEDS_REVIEW'; progressPercent: number; resourceId?: string }): Promise<unknown> {
+    return request(`/learning/concepts/${conceptId}/progress`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async listTeacherLearningReviewQueue(): Promise<any[]> {
+    return request('/learning/teacher/review-queue', { method: 'GET' });
+  },
+
+  async reviewLearningResource(resourceId: string, decision: 'APPROVED' | 'REJECTED' | 'NEEDS_REVISION', reviewNotes?: string): Promise<any> {
+    return request(`/learning/teacher/resources/${resourceId}/review`, { method: 'POST', body: JSON.stringify({ decision, reviewNotes }) });
+  },
+
+  async listAdminLearningResources(status?: string): Promise<any[]> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request(`/learning/admin/resources${query}`, { method: 'GET' });
+  },
+
+  async createAdminLearningResource(payload: { conceptId: string; pathwayCode: 'VIS' | 'LING' | 'LOGI'; format: 'VIDEO' | 'IMAGE' | 'PDF'; title: string; sourceReference?: string }): Promise<{ id: string; format: 'VIDEO' | 'IMAGE' | 'PDF'; status: string }> {
+    return request('/learning/admin/resources', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async openTeacherReviewResource(resourceId: string): Promise<{ url: string; expiresIn: number }> {
+    return request(`/learning/teacher/resources/${resourceId}/open`, { method: 'GET' });
+  },
+
+  async listAdminLearningSubjects(): Promise<{ id: string; code: string; name: string }[]> {
+    return request('/learning/admin/subjects', { method: 'GET' });
+  },
+
+  async listAdminCurriculum(grade?: number): Promise<any[]> {
+    return request(`/learning/admin/curriculum${grade ? `?grade=${grade}` : ''}`, { method: 'GET' });
+  },
+
+  async createAdminCurriculumChapter(payload: { subjectId: string; grade: number; term: number; title: string; description?: string; curriculumReference?: string; orderIndex: number }): Promise<any> {
+    return request('/learning/admin/curriculum/chapters', { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async createAdminCurriculumConcept(chapterId: string, payload: { conceptKey: string; title: string; description?: string; learningObjective?: string; curriculumReference?: string; difficulty: 'EASY' | 'MEDIUM' | 'CHALLENGING'; orderIndex: number }): Promise<any> {
+    return request(`/learning/admin/curriculum/chapters/${chapterId}/concepts`, { method: 'POST', body: JSON.stringify(payload) });
+  },
+
+  async createAdminLearningUploadIntent(resourceId: string, file: File, durationSeconds?: number): Promise<{ uploadUrl: string; storageBucket: string; storagePath: string; mimeType: string; fileSizeBytes: number; durationSeconds: number | null }> {
+    return request(`/learning/admin/resources/${resourceId}/upload-intent`, { method: 'POST', body: JSON.stringify({ fileName: file.name, mimeType: file.type, fileSizeBytes: file.size, durationSeconds }) });
+  },
+
+  async saveAdminLearningFile(resourceId: string, payload: { storageBucket: string; storagePath: string; mimeType: string; fileSizeBytes: number; durationSeconds?: number }): Promise<any> {
+    return request(`/learning/admin/resources/${resourceId}/file`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async publishAdminLearningResource(resourceId: string): Promise<any> {
+    return request(`/learning/admin/resources/${resourceId}/publish`, { method: 'POST' });
   }
 };

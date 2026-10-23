@@ -9,6 +9,7 @@ const studentIdParamSchema = z.object({ student_id: z.string().uuid() });
 
 router.use(authMiddleware, requireRole('TEACHER'));
 router.get('/students', AssessmentAccessController.listStudents);
+router.get('/students/:student_id/report', validateParams(studentIdParamSchema), AssessmentAccessController.studentReport);
 router.post(
   '/students/:student_id/retake-access',
   validateParams(studentIdParamSchema),

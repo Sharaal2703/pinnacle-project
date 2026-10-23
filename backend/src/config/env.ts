@@ -23,5 +23,8 @@ export const config = {
   nodeEnv,
   databaseUrl: process.env.DATABASE_URL || 'postgresql://mindbridge:local-development-only-change-me@localhost:5432/mindbridge?schema=public',
   jwtSecret,
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '2h'
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '2h',
+  supabaseUrl: process.env.SUPABASE_URL?.replace(/\/$/, ''),
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  supabaseStorageBucket: process.env.SUPABASE_STORAGE_BUCKET || 'mindbridge-learning'
 };

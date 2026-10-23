@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError, api } from '../api/client';
-import { UserPlus, Compass, AlertCircle } from 'lucide-react';
+import { SelectField } from '../components/SelectField';
+import { UserPlus, Brain, AlertCircle } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -28,6 +29,14 @@ export const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (options.schools.length && !schoolId) {
+      setError('Select a school to continue.');
+      return;
+    }
+    if (schoolId && !classId) {
+      setError('Select a section to continue.');
+      return;
+    }
     setError(null);
     setIsSubmitting(true);
 
@@ -65,7 +74,7 @@ export const RegisterPage: React.FC = () => {
       <div className="card">
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ display: 'inline-flex', padding: '0.75rem', background: '#e0e7ff', borderRadius: '50%', color: '#4f46e5', marginBottom: '0.75rem' }}>
-            <Compass size={36} />
+            <Brain size={36} />
           </div>
           <h1 className="card-title">Join MindBridge</h1>
           <p className="card-subtitle">Create your student account to discover your learning style</p>
@@ -144,38 +153,19 @@ export const RegisterPage: React.FC = () => {
 
           <div className="form-group registration-form-full">
             <label className="form-label" htmlFor="school">School</label>
-            <select id="school" className="form-select" value={schoolId} onChange={(e) => { setSchoolId(e.target.value); setClassId(''); }} required>
-              <option value="">Select school</option>
-              {options.schools.map((school) => <option key={school.id} value={school.id}>{school.name}</option>)}
-            </select>
+            <SelectField id="school" ariaLabel="School" value={schoolId} onChange={(value) => { setSchoolId(value); setClassId(''); }} required options={[{ value: '', label: 'Select school' }, ...options.schools.map((school) => ({ value: school.id, label: school.name }))]} />
             {options.schools.length === 0 && <p className="form-hint">School records have not been added yet. You can complete registration without one.</p>}
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="grade">Class</label>
-            <select
-              id="grade"
-              className="form-select"
-              value={grade}
-              disabled={!schoolId}
-              onChange={(e) => { setGrade(Number(e.target.value)); setClassId(''); }}
-              required
-            >
-              <option value={6}>Class 6 (Middle School)</option>
-              <option value={7}>Class 7 (Middle School)</option>
-              <option value={8}>Class 8 (Middle School)</option>
-            </select>
+            <SelectField id="grade" ariaLabel="Class grade" value={grade} disabled={!schoolId} onChange={(value) => { setGrade(Number(value)); setClassId(''); }} required options={[6, 7, 8].map((value) => ({ value, label: `Class ${value} (Middle School)` }))} />
             <p className="form-hint">MindBridge is designed for middle school students (Grades 6-8).</p>
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="school-class">Section</label>
-            <select id="school-class" className="form-select" value={classId} disabled={!schoolId} onChange={(e) => setClassId(e.target.value)} required>
-              <option value="">Select section</option>
-              {options.classes.filter((item) => item.school_id === schoolId && item.grade === grade).map((item) => (
-                <option key={item.id} value={item.id}>{item.section}</option>
-              ))}
-            </select>
+            <SelectField id="school-class" ariaLabel="Section" value={classId} disabled={!schoolId} onChange={setClassId} required options={[{ value: '', label: 'Select section' }, ...options.classes.filter((item) => item.school_id === schoolId && item.grade === grade).map((item) => ({ value: item.id, label: item.section }))]} />
           </div>
 
           <button

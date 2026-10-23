@@ -1,6 +1,7 @@
 import { Role } from '@prisma/client';
 import { prisma } from '../utils/prisma';
 import { ConflictError, ForbiddenError, NotFoundError } from '../middleware/error.middleware';
+import { ProfileService } from './profile.service';
 
 export class AssessmentAccessService {
   static async getStudentAccess(studentId: string) {
@@ -106,10 +107,21 @@ export class AssessmentAccessService {
     });
   }
 
-  static async listManagedStudents(role: Role) {
+  static async listManagedStudents(teacherUserId: string, role: Role) {
     if (role !== 'TEACHER') throw new ForbiddenError('Only teachers can manage student assessment access.');
 
+    const teacher = await prisma.teacher.findUnique({ where: { userId: teacherUserId }, select: { id: true } });
+    if (!teacher) throw new ForbiddenError('Teacher profile not found.');
+    const assignments = await prisma.teacherClassAssignment.findMany({
+      where: { teacherId: teacher.id },
+      select: { classId: true },
+      distinct: ['classId']
+    });
+    const assignedClassIds = assignments.map((assignment) => assignment.classId);
+    if (!assignedClassIds.length) return [];
+
     const students = await prisma.student.findMany({
+      where: { classId: { in: assignedClassIds } },
       include: {
         user: { select: { name: true, username: true } },
         schoolClass: { select: { grade: true, section: true, academicYear: true } },
@@ -156,14 +168,48 @@ export class AssessmentAccessService {
     });
   }
 
-  private static async assertCanManageStudent(role: Role, studentId: string): Promise<void> {
-    if (role !== 'TEACHER') throw new ForbiddenError('Only teachers can manage student assessment access.');
-    const student = await prisma.student.findUnique({ where: { id: studentId }, select: { id: true } });
+  static async getAssignedStudentReport(teacherUserId: string, role: Role, studentId: string) {
+    await this.assertCanManageStudent(teacherUserId, role, studentId);
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      include: {
+        user: { select: { name: true, username: true } },
+        schoolClass: { select: { grade: true, section: true, academicYear: true } },
+        profiles: { where: { isCurrent: true }, select: { id: true }, take: 1 }
+      }
+    });
     if (!student) throw new NotFoundError('Student not found.');
+    const profile = student.profiles.length ? await ProfileService.getCurrentProfile(student.id) : null;
+    return {
+      student: {
+        id: student.id,
+        name: student.user.name,
+        username: student.user.username,
+        grade: student.grade,
+        class_name: student.schoolClass
+          ? `${student.schoolClass.grade}-${student.schoolClass.section} (${student.schoolClass.academicYear})`
+          : null
+      },
+      profile
+    };
+  }
+
+  private static async assertCanManageStudent(teacherUserId: string, role: Role, studentId: string): Promise<void> {
+    if (role !== 'TEACHER') throw new ForbiddenError('Only teachers can manage student assessment access.');
+    const teacher = await prisma.teacher.findUnique({ where: { userId: teacherUserId }, select: { id: true } });
+    if (!teacher) throw new ForbiddenError('Teacher profile not found.');
+    const student = await prisma.student.findUnique({ where: { id: studentId }, select: { id: true, classId: true } });
+    if (!student) throw new NotFoundError('Student not found.');
+    if (!student.classId) throw new ForbiddenError('This student is not assigned to a class.');
+    const assignment = await prisma.teacherClassAssignment.findFirst({
+      where: { teacherId: teacher.id, classId: student.classId },
+      select: { id: true }
+    });
+    if (!assignment) throw new ForbiddenError('You can manage students only in your assigned classes.');
   }
 
   static async grantRetake(teacherId: string, role: Role, studentId: string) {
-    await this.assertCanManageStudent(role, studentId);
+    await this.assertCanManageStudent(teacherId, role, studentId);
     const completed = await prisma.assessmentAttempt.findFirst({
       where: { studentId, status: 'SCORED' },
       select: { id: true }
@@ -183,8 +229,8 @@ export class AssessmentAccessService {
     });
   }
 
-  static async revokeRetake(role: Role, studentId: string): Promise<boolean> {
-    await this.assertCanManageStudent(role, studentId);
+  static async revokeRetake(teacherUserId: string, role: Role, studentId: string): Promise<boolean> {
+    await this.assertCanManageStudent(teacherUserId, role, studentId);
     const activeGrant = await prisma.assessmentRetakeGrant.findFirst({
       where: { studentId, consumedAt: null, revokedAt: null },
       orderBy: { grantedAt: 'desc' },

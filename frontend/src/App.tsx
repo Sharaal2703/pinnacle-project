@@ -7,11 +7,15 @@ import { RegisterPage } from './pages/RegisterPage';
 import { InstructionsPage } from './pages/InstructionsPage';
 import { AssessmentPage } from './pages/AssessmentPage';
 import { ResultPage } from './pages/ResultPage';
-import { IncompletePage } from './pages/IncompletePage';
+import { AssessmentIncompletePage } from './pages/AssessmentIncompletePage';
 import { ProfileHistoryPage } from './pages/ProfileHistoryPage';
-import { AdminPage } from './pages/AdminPage';
-import { AssessmentAccessPage } from './pages/AssessmentAccessPage';
+import { AdminAssessmentPage } from './pages/AdminAssessmentPage';
+import { TeacherStudentsPage } from './pages/TeacherStudentsPage';
 import { TeacherAccountsPage } from './pages/TeacherAccountsPage';
+import { LearningLibraryPage } from './pages/LearningLibraryPage';
+import { LearningChapterPage } from './pages/LearningChapterPage';
+import { TeacherLearningReviewPage } from './pages/TeacherLearningReviewPage';
+import { AdminLearningResourcesPage } from './pages/AdminLearningResourcesPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { api } from './api/client';
 import type { Role } from '@pinnacle/shared';
@@ -100,6 +104,10 @@ export const App: React.FC = () => {
               <Route path="/register" element={<RegisterPage />} />
 
               {/* Student Routes */}
+              <Route path="/learning" element={<ProtectedRoute requiredRole="STUDENT"><LearningLibraryPage /></ProtectedRoute>} />
+              <Route path="/learning/chapters/:chapterId" element={<ProtectedRoute requiredRole="STUDENT"><LearningChapterPage /></ProtectedRoute>} />
+              <Route path="/teacher/learning-review" element={<ProtectedRoute requiredRole="TEACHER"><TeacherLearningReviewPage /></ProtectedRoute>} />
+              <Route path="/admin/learning-resources" element={<ProtectedRoute requiredRole="ADMIN"><AdminLearningResourcesPage /></ProtectedRoute>} />
               <Route
                 path="/instructions"
                 element={
@@ -128,7 +136,7 @@ export const App: React.FC = () => {
                 path="/incomplete"
                 element={
                   <ProtectedRoute requiredRole="STUDENT">
-                    <IncompletePage />
+                    <AssessmentIncompletePage />
                   </ProtectedRoute>
                 }
               />
@@ -146,7 +154,7 @@ export const App: React.FC = () => {
                 path="/teacher/access"
                 element={
                   <ProtectedRoute requiredRole="TEACHER">
-                    <AssessmentAccessPage />
+                    <TeacherStudentsPage />
                   </ProtectedRoute>
                 }
               />
@@ -162,7 +170,7 @@ export const App: React.FC = () => {
                 path="/admin"
                 element={
                   <ProtectedRoute requiredRole="ADMIN">
-                    <AdminPage />
+                    <AdminAssessmentPage />
                   </ProtectedRoute>
                 }
               />

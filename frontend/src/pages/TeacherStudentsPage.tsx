@@ -1,14 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, ClipboardCheck, RefreshCw, ShieldCheck } from 'lucide-react';
-import { api } from '../api/client';
+import { AlertCircle, CheckCircle, ClipboardCheck, FileText, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { api, type TeacherStudentReport } from '../api/client';
 import type { ManagedAssessmentStudent } from '@pinnacle/shared';
+import { ProfileChart } from '../components/ProfileChart';
 
-export const AssessmentAccessPage: React.FC = () => {
+export const TeacherStudentsPage: React.FC = () => {
   const [students, setStudents] = useState<ManagedAssessmentStudent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [busyStudentId, setBusyStudentId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [report, setReport] = useState<TeacherStudentReport | null>(null);
+  const [reportStudent, setReportStudent] = useState<ManagedAssessmentStudent | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   const loadStudents = useCallback(async () => {
     setIsLoading(true);
@@ -40,6 +45,18 @@ export const AssessmentAccessPage: React.FC = () => {
       setBusyStudentId(null);
     }
   };
+
+  const viewReport = async (student: ManagedAssessmentStudent) => {
+    setReportStudent(student);
+    setReport(null);
+    setReportError(null);
+    setReportLoading(true);
+    try { setReport(await api.getAssignedStudentReport(student.student_id)); }
+    catch (err: any) { setReportError(err?.message || 'Could not load this student’s report.'); }
+    finally { setReportLoading(false); }
+  };
+
+  const closeReport = () => { setReportStudent(null); setReport(null); setReportError(null); };
 
   return (
     <div className="staff-access-page">
@@ -78,7 +95,7 @@ export const AssessmentAccessPage: React.FC = () => {
                 <th>Grade / Class</th>
                 <th>Assessment</th>
                 <th>Retake access</th>
-                <th>Action</th>
+                <th>Detailed report</th>
               </tr>
             </thead>
             <tbody>
@@ -93,23 +110,21 @@ export const AssessmentAccessPage: React.FC = () => {
                     {student.has_completed_assessment ? 'Completed' : student.has_in_progress_attempt ? 'In progress' : 'Not started'}
                   </td>
                   <td>
-                    <span className={`access-status ${student.retake_authorized ? 'authorized' : ''}`}>
-                      {student.retake_authorized ? 'Authorized' : 'Not authorized'}
-                    </span>
-                  </td>
-                  <td>
-                    {student.can_manage_retake && (
+                    {student.can_manage_retake ? (
                       <button
                         type="button"
                         className={student.retake_authorized ? 'btn btn-secondary btn-sm' : 'btn btn-primary btn-sm'}
                         onClick={() => changeAccess(student)}
                         disabled={busyStudentId === student.student_id}
                       >
-                        {busyStudentId === student.student_id
-                          ? 'Saving…'
-                          : student.retake_authorized ? 'Revoke' : 'Authorize retake'}
+                        {busyStudentId === student.student_id ? 'Saving…' : student.retake_authorized ? 'Revoke retake' : 'Authorize retake'}
                       </button>
-                    )}
+                    ) : <span className="access-status">Available after completion</span>}
+                  </td>
+                  <td>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => void viewReport(student)}>
+                      <FileText size={16} /> View report
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -117,6 +132,28 @@ export const AssessmentAccessPage: React.FC = () => {
           </table>
         </div>
       )}
+      {reportStudent && <div className="student-report-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeReport(); }}>
+        <section className="student-report-dialog" role="dialog" aria-modal="true" aria-labelledby="student-report-title">
+          <header className="student-report-header">
+            <div>
+              <h2 id="student-report-title">Student profile report</h2>
+              <p>{reportStudent.name} · @{reportStudent.username} · Grade {reportStudent.grade}{reportStudent.class_name ? ` · ${reportStudent.class_name}` : ''}</p>
+            </div>
+            <button type="button" className="btn btn-secondary btn-sm" aria-label="Close report" onClick={closeReport}><X size={18} /></button>
+          </header>
+          {reportLoading ? <div className="access-state">Loading student profile…</div>
+            : reportError ? <div className="alert alert-error">{reportError}</div>
+              : report?.profile ? <>
+                <div className="student-report-summary">
+                  <div><span>Dominant intelligence</span><strong>{report.profile.dominant.name}</strong></div>
+                  <div><span>Secondary intelligence</span><strong>{report.profile.secondary.name}</strong></div>
+                  <div><span>Assessment date</span><strong>{new Date(report.profile.created_at).toLocaleDateString()}</strong></div>
+                  <div><span>Equal top scores</span><strong>{report.profile.tie ? 'Yes · response time used' : 'No'}</strong></div>
+                </div>
+                <ProfileChart scores={report.profile.scores} dominantCode={report.profile.dominant.code} secondaryCode={report.profile.secondary.code} />
+              </> : <div className="card access-state"><h3>No completed profile yet</h3><p>This student’s detailed report will be available after they complete the pre-assessment.</p></div>}
+        </section>
+      </div>}
     </div>
   );
 };

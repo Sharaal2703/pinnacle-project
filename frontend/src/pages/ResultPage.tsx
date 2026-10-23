@@ -5,10 +5,8 @@ import type { StudentAssessmentAccess } from "@pinnacle/shared";
 import { ProfileChart } from "../components/ProfileChart";
 import type { PreferenceProfile } from "@pinnacle/shared";
 import {
-  Award,
   Compass,
   RefreshCw,
-  History,
   AlertCircle,
   Sparkles,
   ArrowRight,

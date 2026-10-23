@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { api, ApiError } from '../api/client';
-import type { QuestionVersion, AssessmentConfig, PathwayCode, QuestionType, ReviewStatus } from '@pinnacle/shared';
+import { api } from '../api/client';
+import { SelectField } from '../components/SelectField';
+import type { QuestionVersion, PathwayCode, QuestionType } from '@pinnacle/shared';
 import {
   ShieldCheck,
   BookOpen,
   Settings,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Plus,
   RefreshCw,
@@ -14,7 +14,7 @@ import {
   FileCheck
 } from 'lucide-react';
 
-export const AdminPage: React.FC = () => {
+export const AdminAssessmentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'questions' | 'config'>('questions');
 
   // Questions State
@@ -42,8 +42,6 @@ export const AdminPage: React.FC = () => {
   const [isSubmittingNew, setIsSubmittingNew] = useState(false);
 
   // Config State
-  const [config, setConfig] = useState<AssessmentConfig | null>(null);
-  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
   const [configVersion, setConfigVersion] = useState('');
   const [totalLimit, setTotalLimit] = useState(1500);
   const [selfReportLimit, setSelfReportLimit] = useState(60);
@@ -71,10 +69,8 @@ export const AdminPage: React.FC = () => {
   };
 
   const loadConfig = async () => {
-    setIsLoadingConfig(true);
     try {
       const cfg = await api.getAdminConfig();
-      setConfig(cfg);
       setConfigVersion(cfg.version);
       setTotalLimit(cfg.total_limit_seconds);
       setSelfReportLimit(cfg.self_report_limit_seconds);
@@ -83,8 +79,6 @@ export const AdminPage: React.FC = () => {
       setMinAnswered(cfg.min_answered_count);
     } catch (err: any) {
       setError(err?.message || 'Failed to load configuration.');
-    } finally {
-      setIsLoadingConfig(false);
     }
   };
 
@@ -176,7 +170,6 @@ export const AdminPage: React.FC = () => {
         grace_period_seconds: Number(gracePeriod),
         min_answered_count: Number(minAnswered),
       });
-      setConfig(updated);
       setSuccessMsg(`Assessment configuration updated to v${updated.version}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to update configuration.');
@@ -297,32 +290,20 @@ export const AdminPage: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Type</label>
-                    <select
-                      className="form-select"
-                      value={newType}
-                      onChange={(e) => setNewType(e.target.value as QuestionType)}
-                    >
-                      <option value="SELF_REPORT">SELF_REPORT (1–5 scale)</option>
-                      <option value="SCENARIO">SCENARIO (Options A–D)</option>
-                    </select>
+                    <SelectField ariaLabel="Question type" value={newType} onChange={(value) => setNewType(value as QuestionType)} options={[
+                      { value: 'SELF_REPORT', label: 'SELF_REPORT (1–5 scale)' },
+                      { value: 'SCENARIO', label: 'SCENARIO (Options A–D)' }
+                    ]} />
                   </div>
                   {newType === 'SELF_REPORT' && (
                     <div className="form-group">
                       <label className="form-label">Target Pathway</label>
-                      <select
-                        className="form-select"
-                        value={newPathway}
-                        onChange={(e) => setNewPathway(e.target.value as PathwayCode)}
-                      >
-                        <option value="LING">Linguistic</option>
-                        <option value="LOGI">Logical-Mathematical</option>
-                        <option value="VIS">Visual</option>
-                        <option value="MUSI">Musical</option>
-                        <option value="BODY">Bodily-Kinesthetic</option>
-                        <option value="NAT">Naturalistic</option>
-                        <option value="INTER">Interpersonal</option>
-                        <option value="INTRA">Intrapersonal</option>
-                      </select>
+                      <SelectField ariaLabel="Target pathway" value={newPathway} onChange={(value) => setNewPathway(value as PathwayCode)} options={[
+                        { value: 'LING', label: 'Linguistic' }, { value: 'LOGI', label: 'Logical-Mathematical' },
+                        { value: 'VIS', label: 'Visual' }, { value: 'MUSI', label: 'Musical' },
+                        { value: 'BODY', label: 'Bodily-Kinesthetic' }, { value: 'NAT', label: 'Naturalistic' },
+                        { value: 'INTER', label: 'Interpersonal' }, { value: 'INTRA', label: 'Intrapersonal' }
+                      ]} />
                     </div>
                   )}
                   <div className="form-group">
@@ -381,7 +362,7 @@ export const AdminPage: React.FC = () => {
                 <tr>
                   <th scope="col">Key & Ver</th>
                   <th scope="col">Type</th>
-                  <th scope="col">Prompt</th>
+                  <th scope="col">Question</th>
                   <th scope="col">Review Status</th>
                   <th scope="col">Active</th>
                   <th scope="col">Actions</th>
@@ -492,14 +473,10 @@ export const AdminPage: React.FC = () => {
 
                   <div className="form-group">
                     <label className="form-label">Decision</label>
-                    <select
-                      className="form-select"
-                      value={reviewStatus}
-                      onChange={(e) => setReviewStatus(e.target.value as any)}
-                    >
-                      <option value="APPROVED">APPROVED — Ready for Middle School Students</option>
-                      <option value="REJECTED">REJECTED — Needs Modification</option>
-                    </select>
+                    <SelectField ariaLabel="Review decision" value={reviewStatus} onChange={(value) => setReviewStatus(value as any)} options={[
+                      { value: 'APPROVED', label: 'APPROVED — Ready for Middle School Students' },
+                      { value: 'REJECTED', label: 'REJECTED — Needs Modification' }
+                    ]} />
                   </div>
 
                   <div className="form-group">

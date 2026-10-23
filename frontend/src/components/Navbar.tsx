@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Brain, User, LogOut, ShieldCheck, History, Award, ClipboardCheck, UsersRound } from 'lucide-react';
+import { Brain, User, LogOut, ShieldCheck, History, Award, ClipboardCheck, UsersRound, BookOpen, Library } from 'lucide-react';
 import { api } from '../api/client';
 
 export const Navbar: React.FC = () => {
@@ -60,6 +60,10 @@ export const Navbar: React.FC = () => {
                     <History size={18} aria-hidden="true" />
                     History
                   </Link>
+                  <Link to="/learning" className="nav-link">
+                    <BookOpen size={18} aria-hidden="true" />
+                    Learning
+                  </Link>
                 </>
               )}
 
@@ -73,14 +77,24 @@ export const Navbar: React.FC = () => {
                     <UsersRound size={18} aria-hidden="true" />
                     Teacher Accounts
                   </Link>
+                  <Link to="/admin/learning-resources" className="nav-link">
+                    <Library size={18} aria-hidden="true" />
+                    Learning Resources
+                  </Link>
                 </>
               )}
 
               {user?.role === 'TEACHER' && (
-                <Link to="/teacher/access" className="nav-link">
-                  <ClipboardCheck size={18} aria-hidden="true" />
-                  <span>Student Access</span>
-                </Link>
+                <>
+                  <Link to="/teacher/access" className="nav-link">
+                    <ClipboardCheck size={18} aria-hidden="true" />
+                    <span>Student Access</span>
+                  </Link>
+                  <Link to="/teacher/learning-review" className="nav-link">
+                    <BookOpen size={18} aria-hidden="true" />
+                    <span>Resource Review</span>
+                  </Link>
+                </>
               )}
 
               <div className="user-pill">
