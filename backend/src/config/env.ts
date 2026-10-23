@@ -1,11 +1,8 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Backend credentials (including a cloud DATABASE_URL) take precedence.
-// The repository-root .env is reserved for optional local Compose settings.
-// These paths work in both src/config and dist/config layouts.
+// Backend-local credentials are loaded first; these paths work in both src/config and dist/config layouts.
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 dotenv.config();
 
 const nodeEnv = process.env.NODE_ENV || 'development';

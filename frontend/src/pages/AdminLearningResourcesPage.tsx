@@ -147,7 +147,7 @@ export const AdminLearningResourcesPage: React.FC = () => {
     </label>
     <section className="card" style={{ padding: '1.25rem', margin: '1rem 0' }}>
       <h2>Create resource and upload</h2>
-      <p style={{ color: '#64748b' }}>Enter the resource details and upload its file. The assigned teacher reviews the uploaded resource before it can be published.</p>
+      <p style={{ color: '#64748b' }}>The assigned teacher reviews the uploaded resource before it can be published.</p>
       {!availableConcepts.length ? <p>Add chapters and concepts in the Curriculum tab first.</p> : <form className="admin-horizontal-form" onSubmit={createResource}>
         <label>Curriculum concept<SelectField required ariaLabel="Curriculum concept" value={resourceForm.conceptId} onChange={value => setResourceForm({ ...resourceForm, conceptId: value })} options={availableConcepts.map(option => ({ value: option.id, label: `Grade ${option.chapter.grade} · ${option.chapter.subject.name} · ${option.chapter.title} · ${option.title}` }))} /></label>
         <label>Resource title<input required maxLength={200} value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} /></label>

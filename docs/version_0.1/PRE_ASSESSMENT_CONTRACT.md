@@ -26,7 +26,7 @@ Question prompts and final scenario mappings must come from reviewed questionnai
 - Frontend: React + TypeScript.
 - Backend: Node.js + TypeScript + Express, as a modular monolith.
 - Database: PostgreSQL with Prisma and versioned migrations.
-- Development database: local PostgreSQL through the repository's Docker Compose service; each developer uses an independent database and `.env`. No cloud database is required to begin implementation. See `DATABASE_SETUP.md`.
+- Development database: PostgreSQL configured through `backend/.env`; each developer uses an independent database where possible. See `DATABASE_SETUP.md`.
 - Workspace: npm workspaces: `frontend/`, `backend/`, `shared/`.
 - Shared interfaces: Zod schemas in `shared/`; generate OpenAPI and TypeScript client types from those schemas. `shared/` is owned by Developer 1. Developer 2 requests changes there instead of creating parallel DTOs.
 - API prefix: `/api/v1`; JSON properties use `snake_case`; IDs are UUIDs; timestamps are UTC ISO-8601.

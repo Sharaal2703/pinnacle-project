@@ -10,9 +10,9 @@ Use `PRE_ASSESSMENT_CONTRACT.md` as the binding API, data, scoring, security, an
 
 ### 1. Shared foundation
 
-**Developer 1 leads; both review.** Scaffold npm workspaces for React/TypeScript (`frontend/`), Express/TypeScript (`backend/`), and shared Zod schemas/types (`shared/`). Set the Node LTS runtime, PostgreSQL through the repository's local Docker Compose setup, Prisma schema/migration workflow, config loading, common error response, and OpenAPI generation. Each developer uses a separate local database. Consider a restricted cloud staging database only when integration/deployment needs it; use fictional data. Create the pathway and role enums and the API client boundary. See `DATABASE_SETUP.md`.
+**Developer 1 leads; both review.** Scaffold npm workspaces for React/TypeScript (`frontend/`), Express/TypeScript (`backend/`), and shared Zod schemas/types (`shared/`). Set the Node LTS runtime, PostgreSQL connection through backend environment configuration, Prisma schema/migration workflow, config loading, common error response, and OpenAPI generation. Each developer uses a separate development database. Consider a restricted cloud staging database only when integration/deployment needs it; use fictional data. Create the pathway and role enums and the API client boundary. See `DATABASE_SETUP.md`.
 
-**Exit:** both developers can run the app and local database; generated OpenAPI/types match shared schemas; no credentials are committed.
+**Exit:** both developers can run the app against their development databases; generated OpenAPI/types match shared schemas; no credentials are committed.
 
 ### 2. Identity and question bank
 
