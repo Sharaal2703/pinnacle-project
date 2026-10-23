@@ -71,12 +71,6 @@ enum LearningResourceStatus {
   ARCHIVED
 }
 
-enum ConceptDifficulty {
-  EASY
-  MEDIUM
-  CHALLENGING
-}
-
 enum ConceptProgressStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -234,7 +228,6 @@ model CurriculumConcept {
   description         String?
   learningObjective   String?
   curriculumReference String?
-  difficulty          ConceptDifficulty @default(MEDIUM)
   orderIndex          Int               @default(0)
   isActive            Boolean           @default(true)
   createdAt           DateTime          @default(now())

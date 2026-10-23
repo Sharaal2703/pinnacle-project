@@ -69,7 +69,7 @@ export class LearningController {
   static async createConcept(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const chapterId = z.string().uuid().parse(req.params.chapterId);
-      const input = z.object({ conceptKey: z.string().trim().min(1).max(100), title: z.string().trim().min(1).max(200), description: z.string().max(5000).optional(), learningObjective: z.string().max(2000).optional(), curriculumReference: z.string().max(1000).optional(), difficulty: z.enum(['EASY', 'MEDIUM', 'CHALLENGING']).default('MEDIUM'), orderIndex: z.number().int().min(0) }).parse(req.body);
+      const input = z.object({ conceptKey: z.string().trim().min(1).max(100), title: z.string().trim().min(1).max(200), description: z.string().max(5000).optional(), learningObjective: z.string().max(2000).optional(), curriculumReference: z.string().max(1000).optional(), orderIndex: z.number().int().min(0) }).parse(req.body);
       const chapter = await prisma.curriculumChapter.findUnique({ where: { id: chapterId } });
       if (!chapter || chapter.grade < 6 || chapter.grade > 8) throw new NotFoundError('Grade 6–8 chapter not found');
       const concept = await prisma.curriculumConcept.create({ data: { ...input, chapterId } });
@@ -164,7 +164,7 @@ export class LearningController {
                 where: { isActive: true }, orderBy: { orderIndex: 'asc' },
                 select: {
                   id: true, conceptKey: true, title: true, description: true, learningObjective: true,
-                  curriculumReference: true, difficulty: true, orderIndex: true,
+                  curriculumReference: true, orderIndex: true,
                   resources: {
                     where: { status: 'PUBLISHED', isActive: true, languageCode: 'en', pathwayId: { in: pathwayIds } },
                     select: { id: true, title: true, format: true, pathway: { select: { code: true, name: true } }, durationSeconds: true }
